@@ -1,0 +1,640 @@
+// PAU Network data model
+//
+// Naming conventions (used everywhere in the codebase):
+//   Models          PascalCase, singular          User, SpaceQuestion
+//   Tables          snake_case, plural (@@map)    users, space_questions
+//   Fields          camelCase                     graduationYear
+//   Columns         snake_case (@map)             graduation_year
+//   Enums           PascalCase / SCREAMING_SNAKE  BookingStatus.PENDING
+//   Primary keys    id (UUID)
+//   Foreign keys    <relation>Id                  authorId, spaceId
+//   Booleans        is/has prefix                 isVerified, isHandRaised
+//   Timestamps      <event>At, UTC                createdAt, startsAt, readAt
+//   Counters        <thing>Count                  commentCount
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ───────────────────────────── Enums ─────────────────────────────
+
+enum UserRole {
+  STUDENT
+  ALUMNI
+  ADMIN
+
+  @@map("user_role")
+}
+
+/// Shared by membership tiers and badge levels.
+enum Tier {
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+
+  @@map("tier")
+}
+
+enum BookingStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  CANCELLED
+  COMPLETED
+
+  @@map("booking_status")
+}
+
+enum BookingTopic {
+  CAREER_ADVICE
+  CV_REVIEW
+  INTERNSHIPS
+  COURSE_ADVICE
+  INTERVIEW_PREP
+  OTHER
+
+  @@map("booking_topic")
+}
+
+enum ConversationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+
+  @@map("conversation_status")
+}
+
+/// LIKE 👍  LOVE ❤️  CELEBRATE 🎉  INSIGHTFUL 💡  FUNNY 😂  SUPPORT 🤝
+enum ReactionType {
+  LIKE
+  LOVE
+  CELEBRATE
+  INSIGHTFUL
+  FUNNY
+  SUPPORT
+
+  @@map("reaction_type")
+}
+
+enum SpaceStatus {
+  SCHEDULED
+  LIVE
+  ENDED
+  CANCELLED
+
+  @@map("space_status")
+}
+
+enum SpaceParticipantRole {
+  HOST
+  SPEAKER
+  LISTENER
+
+  @@map("space_participant_role")
+}
+
+enum SpaceQuestionStatus {
+  OPEN
+  ANSWERED
+  DISMISSED
+
+  @@map("space_question_status")
+}
+
+enum ActivityType {
+  PROFILE_COMPLETED
+  SESSION_COMPLETED
+  SESSION_ATTENDED
+  FIVE_STAR_RATING_RECEIVED
+  FEEDBACK_GIVEN
+  SPACE_HOSTED
+  SPACE_ATTENDED
+  QUESTION_ASKED
+  QUESTION_ANSWERED
+  POST_CREATED
+  COMMENT_CREATED
+  REACTION_RECEIVED
+  MESSAGE_REQUEST_ACCEPTED
+  AWARD_WON
+
+  @@map("activity_type")
+}
+
+enum BadgeCategory {
+  MENTORSHIP
+  SPACES
+  COMMUNITY
+  MILESTONE
+
+  @@map("badge_category")
+}
+
+enum AwardType {
+  ALUMNI_OF_THE_MONTH
+  ALUMNI_OF_THE_YEAR
+  STUDENT_OF_THE_MONTH
+  RISING_STAR_OF_THE_YEAR
+  DEPARTMENT_CHAMPION_OF_THE_MONTH
+  SPACE_OF_THE_YEAR
+  STUDENTS_CHOICE_OF_THE_YEAR
+
+  @@map("award_type")
+}
+
+enum NotificationType {
+  BOOKING_REQUESTED
+  BOOKING_ACCEPTED
+  BOOKING_DECLINED
+  BOOKING_CANCELLED
+  MESSAGE_REQUEST_RECEIVED
+  MESSAGE_REQUEST_ACCEPTED
+  MESSAGE_RECEIVED
+  POST_COMMENTED
+  POST_REACTED
+  SPACE_SCHEDULED
+  SPACE_STARTED
+  BADGE_EARNED
+  TIER_REACHED
+  AWARD_WON
+
+  @@map("notification_type")
+}
+
+// ───────────────────────────── Core ─────────────────────────────
+
+model Department {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @unique
+  slug      String   @unique
+  school    String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  users  User[]
+  spaces Space[]
+  awards Award[]
+
+  @@map("departments")
+}
+
+model User {
+  id             String    @id @default(uuid()) @db.Uuid
+  email          String    @unique
+  passwordHash   String    @map("password_hash")
+  role           UserRole
+  firstName      String    @map("first_name")
+  lastName       String    @map("last_name")
+  avatarUrl      String?   @map("avatar_url")
+  /// Profile backdrop image shown behind the avatar
+  bannerUrl      String?   @map("banner_url")
+  headline       String?
+  bio            String?
+  departmentId   String    @map("department_id") @db.Uuid
+  graduationYear Int       @map("graduation_year")
+  /// Students only: 100 to 500
+  studentLevel   Int?      @map("student_level")
+  /// Alumni only
+  jobTitle       String?   @map("job_title")
+  company        String?
+  industry       String?
+  location       String?
+  linkedinUrl    String?   @map("linkedin_url")
+  skills         String[]  @default([])
+  /// Alumni only, set by an admin
+  isVerified     Boolean   @default(false) @map("is_verified")
+  /// Lifetime points, denormalised from point_transactions
+  points         Int       @default(0)
+  tier           Tier      @default(BRONZE)
+  lastActiveAt   DateTime? @map("last_active_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  department Department @relation(fields: [departmentId], references: [id])
+
+  experiences Experience[]
+  educations  Education[]
+
+  followers Follow[] @relation("FollowFollowing")
+  following Follow[] @relation("FollowFollower")
+
+  availabilitySlots AvailabilitySlot[]
+  studentBookings   Booking[]          @relation("BookingStudent")
+  alumniBookings    Booking[]          @relation("BookingAlumni")
+
+  requestedConversations Conversation[] @relation("ConversationRequester")
+  receivedConversations  Conversation[] @relation("ConversationRecipient")
+  messages               Message[]
+
+  posts     Post[]
+  comments  Comment[]
+  reactions Reaction[]
+
+  hostedSpaces       Space[]
+  spaceParticipants  SpaceParticipant[]
+  spaceQuestions     SpaceQuestion[]
+  spaceQuestionVotes SpaceQuestionVote[]
+
+  pointTransactions PointTransaction[]
+  userBadges        UserBadge[]
+  awards            Award[]
+  awardVotesCast    AwardVote[]        @relation("AwardVoteVoter")
+  awardVotesGot     AwardVote[]        @relation("AwardVoteNominee")
+  notifications     Notification[]
+
+  @@index([role, departmentId])
+  @@index([graduationYear])
+  @@map("users")
+}
+
+model Follow {
+  followerId  String   @map("follower_id") @db.Uuid
+  followingId String   @map("following_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  follower  User @relation("FollowFollower", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("FollowFollowing", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@id([followerId, followingId])
+  @@index([followingId])
+  @@map("follows")
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+  SELF_EMPLOYED
+  VOLUNTEER
+
+  @@map("employment_type")
+}
+
+/// A role in the user's work history. endDate = null means it is their current role.
+model Experience {
+  id             String         @id @default(uuid()) @db.Uuid
+  userId         String         @map("user_id") @db.Uuid
+  title          String
+  company        String
+  employmentType EmploymentType @default(FULL_TIME) @map("employment_type")
+  location       String?
+  startDate      DateTime       @map("start_date") @db.Date
+  endDate        DateTime?      @map("end_date") @db.Date
+  description    String?
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, startDate])
+  @@map("experiences")
+}
+
+model Education {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  school       String
+  degree       String?
+  fieldOfStudy String?  @map("field_of_study")
+  startYear    Int      @map("start_year")
+  /// Expected year for current students
+  endYear      Int?     @map("end_year")
+  description  String?
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, startYear])
+  @@map("educations")
+}
+
+// ───────────────────────────── Mentorship ─────────────────────────────
+
+model AvailabilitySlot {
+  id        String   @id @default(uuid()) @db.Uuid
+  alumniId  String   @map("alumni_id") @db.Uuid
+  startsAt  DateTime @map("starts_at")
+  endsAt    DateTime @map("ends_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  alumni   User      @relation(fields: [alumniId], references: [id], onDelete: Cascade)
+  bookings Booking[]
+
+  @@unique([alumniId, startsAt])
+  @@index([startsAt])
+  @@map("availability_slots")
+}
+
+model Booking {
+  id            String        @id @default(uuid()) @db.Uuid
+  slotId        String        @map("slot_id") @db.Uuid
+  studentId     String        @map("student_id") @db.Uuid
+  alumniId      String        @map("alumni_id") @db.Uuid
+  topic         BookingTopic
+  message       String
+  status        BookingStatus @default(PENDING)
+  declineReason String?       @map("decline_reason")
+  meetingUrl    String?       @map("meeting_url")
+  /// 1 to 5, given by the student after the session
+  rating        Int?
+  feedback      String?
+  respondedAt   DateTime?     @map("responded_at")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  slot    AvailabilitySlot @relation(fields: [slotId], references: [id], onDelete: Cascade)
+  student User             @relation("BookingStudent", fields: [studentId], references: [id], onDelete: Cascade)
+  alumni  User             @relation("BookingAlumni", fields: [alumniId], references: [id], onDelete: Cascade)
+
+  @@index([studentId, status])
+  @@index([alumniId, status])
+  @@index([slotId])
+  @@map("bookings")
+}
+
+// ───────────────────────────── Messaging ─────────────────────────────
+
+/// A message request becomes a conversation once the recipient accepts it.
+model Conversation {
+  id            String             @id @default(uuid()) @db.Uuid
+  requesterId   String             @map("requester_id") @db.Uuid
+  recipientId   String             @map("recipient_id") @db.Uuid
+  status        ConversationStatus @default(PENDING)
+  respondedAt   DateTime?          @map("responded_at")
+  lastMessageAt DateTime?          @map("last_message_at")
+  createdAt     DateTime           @default(now()) @map("created_at")
+  updatedAt     DateTime           @updatedAt @map("updated_at")
+
+  requester User      @relation("ConversationRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  recipient User      @relation("ConversationRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  messages  Message[]
+
+  @@unique([requesterId, recipientId])
+  @@index([recipientId, status])
+  @@map("conversations")
+}
+
+model Message {
+  id             String    @id @default(uuid()) @db.Uuid
+  conversationId String    @map("conversation_id") @db.Uuid
+  senderId       String    @map("sender_id") @db.Uuid
+  body           String
+  readAt         DateTime? @map("read_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+  @@map("messages")
+}
+
+// ───────────────────────────── Timeline ─────────────────────────────
+
+/// Only alumni can create posts. Everyone can comment and react.
+model Post {
+  id            String   @id @default(uuid()) @db.Uuid
+  authorId      String   @map("author_id") @db.Uuid
+  body          String
+  imageUrl      String?  @map("image_url")
+  commentCount  Int      @default(0) @map("comment_count")
+  reactionCount Int      @default(0) @map("reaction_count")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  author    User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments  Comment[]
+  reactions Reaction[]
+
+  @@index([createdAt])
+  @@index([authorId, createdAt])
+  @@map("posts")
+}
+
+model Comment {
+  id            String   @id @default(uuid()) @db.Uuid
+  postId        String   @map("post_id") @db.Uuid
+  authorId      String   @map("author_id") @db.Uuid
+  /// Set when this comment is a reply to another comment
+  parentId      String?  @map("parent_id") @db.Uuid
+  body          String
+  reactionCount Int      @default(0) @map("reaction_count")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  post      Post       @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author    User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parent    Comment?   @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[]  @relation("CommentReplies")
+  reactions Reaction[]
+
+  @@index([postId, createdAt])
+  @@map("comments")
+}
+
+/// One reaction per user per post or comment (exactly one of postId / commentId is set).
+model Reaction {
+  id        String       @id @default(uuid()) @db.Uuid
+  userId    String       @map("user_id") @db.Uuid
+  postId    String?      @map("post_id") @db.Uuid
+  commentId String?      @map("comment_id") @db.Uuid
+  type      ReactionType
+  createdAt DateTime     @default(now()) @map("created_at")
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post    Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  comment Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@unique([userId, commentId])
+  @@map("reactions")
+}
+
+// ───────────────────────────── Spaces ─────────────────────────────
+
+/// A live audio/video room hosted by an alumnus. Audio/video runs on Jitsi (roomName);
+/// hands, questions and reactions run on our Socket.IO server.
+model Space {
+  id               String      @id @default(uuid()) @db.Uuid
+  hostId           String      @map("host_id") @db.Uuid
+  departmentId     String?     @map("department_id") @db.Uuid
+  title            String
+  description      String?
+  status           SpaceStatus @default(SCHEDULED)
+  scheduledStartAt DateTime    @map("scheduled_start_at")
+  scheduledEndAt   DateTime    @map("scheduled_end_at")
+  startedAt        DateTime?   @map("started_at")
+  endedAt          DateTime?   @map("ended_at")
+  capacity         Int         @default(100)
+  roomName         String      @unique @map("room_name")
+  createdAt        DateTime    @default(now()) @map("created_at")
+  updatedAt        DateTime    @updatedAt @map("updated_at")
+
+  host         User               @relation(fields: [hostId], references: [id], onDelete: Cascade)
+  department   Department?        @relation(fields: [departmentId], references: [id])
+  participants SpaceParticipant[]
+  questions    SpaceQuestion[]
+
+  @@index([status, scheduledStartAt])
+  @@map("spaces")
+}
+
+model SpaceParticipant {
+  spaceId      String               @map("space_id") @db.Uuid
+  userId       String               @map("user_id") @db.Uuid
+  role         SpaceParticipantRole @default(LISTENER)
+  isHandRaised Boolean              @default(false) @map("is_hand_raised")
+  handRaisedAt DateTime?            @map("hand_raised_at")
+  registeredAt DateTime             @default(now()) @map("registered_at")
+  joinedAt     DateTime?            @map("joined_at")
+  leftAt       DateTime?            @map("left_at")
+
+  space Space @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([spaceId, userId])
+  @@index([userId])
+  @@map("space_participants")
+}
+
+model SpaceQuestion {
+  id          String              @id @default(uuid()) @db.Uuid
+  spaceId     String              @map("space_id") @db.Uuid
+  authorId    String              @map("author_id") @db.Uuid
+  body        String
+  status      SpaceQuestionStatus @default(OPEN)
+  upvoteCount Int                 @default(0) @map("upvote_count")
+  answeredAt  DateTime?           @map("answered_at")
+  createdAt   DateTime            @default(now()) @map("created_at")
+
+  space  Space               @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+  author User                @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  votes  SpaceQuestionVote[]
+
+  @@index([spaceId, status])
+  @@map("space_questions")
+}
+
+model SpaceQuestionVote {
+  questionId String   @map("question_id") @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  question SpaceQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([questionId, userId])
+  @@map("space_question_votes")
+}
+
+// ───────────────────────────── Gamification ─────────────────────────────
+
+/// Immutable points ledger. users.points is the running total.
+model PointTransaction {
+  id           String       @id @default(uuid()) @db.Uuid
+  userId       String       @map("user_id") @db.Uuid
+  activityType ActivityType @map("activity_type")
+  points       Int
+  /// Id of the booking, post, space etc. that earned the points
+  referenceId  String?      @map("reference_id") @db.Uuid
+  createdAt    DateTime     @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([createdAt])
+  @@map("point_transactions")
+}
+
+model Badge {
+  id          String        @id @default(uuid()) @db.Uuid
+  /// Stable machine key, e.g. MENTOR_GOLD
+  code        String        @unique
+  name        String
+  description String
+  /// Emoji shown on the badge
+  icon        String
+  category    BadgeCategory
+  tier        Tier
+  /// Which role can earn it; null = everyone
+  role        UserRole?
+  createdAt   DateTime      @default(now()) @map("created_at")
+
+  userBadges UserBadge[]
+
+  @@map("badges")
+}
+
+model UserBadge {
+  userId    String   @map("user_id") @db.Uuid
+  badgeId   String   @map("badge_id") @db.Uuid
+  awardedAt DateTime @default(now()) @map("awarded_at")
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge Badge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@id([userId, badgeId])
+  @@map("user_badges")
+}
+
+/// A recognition for a period: a month (Alumni of the Month) or a year (Alumni of the Year).
+model Award {
+  id           String     @id @default(uuid()) @db.Uuid
+  type         AwardType
+  recipientId  String     @map("recipient_id") @db.Uuid
+  /// Set for department-level awards
+  departmentId String?    @map("department_id") @db.Uuid
+  periodStart  DateTime   @map("period_start")
+  periodEnd    DateTime   @map("period_end")
+  score        Int
+  citation     String
+  createdAt    DateTime   @default(now()) @map("created_at")
+
+  recipient  User        @relation(fields: [recipientId], references: [id], onDelete: Cascade)
+  department Department? @relation(fields: [departmentId], references: [id])
+
+  @@unique([type, periodStart, recipientId])
+  @@index([type, periodStart])
+  @@map("awards")
+}
+
+/// Votes for yearly people's-choice awards (one vote per voter per award per year).
+model AwardVote {
+  id        String    @id @default(uuid()) @db.Uuid
+  awardType AwardType @map("award_type")
+  year      Int
+  voterId   String    @map("voter_id") @db.Uuid
+  nomineeId String    @map("nominee_id") @db.Uuid
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  voter   User @relation("AwardVoteVoter", fields: [voterId], references: [id], onDelete: Cascade)
+  nominee User @relation("AwardVoteNominee", fields: [nomineeId], references: [id], onDelete: Cascade)
+
+  @@unique([awardType, year, voterId])
+  @@index([awardType, year, nomineeId])
+  @@map("award_votes")
+}
+
+// ───────────────────────────── Notifications ─────────────────────────────
+
+model Notification {
+  id        String           @id @default(uuid()) @db.Uuid
+  userId    String           @map("user_id") @db.Uuid
+  type      NotificationType
+  title     String
+  body      String?
+  linkUrl   String?          @map("link_url")
+  readAt    DateTime?        @map("read_at")
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt, createdAt])
+  @@map("notifications")
+}
