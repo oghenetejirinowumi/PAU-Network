@@ -139,28 +139,29 @@ export default function ProfilePage() {
 
   return (
     <AppShell wide>
-      <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="min-w-0 space-y-4">
           {/* Header: backdrop + photo */}
           <Card className="overflow-hidden">
             <div className="relative">
               {profile.bannerUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={profile.bannerUrl} alt="" className="aspect-[4/1] w-full object-cover" />
+                <img src={profile.bannerUrl} alt="" decoding="async" className="aspect-[4/1] w-full object-cover" />
               ) : (
                 <div className="banner-default aspect-[4/1] w-full" />
               )}
               {isMe && (
-                <label className="absolute right-3 top-3 flex cursor-pointer items-center gap-1.5 rounded-full bg-surface/90 px-3 py-1.5 text-xs font-semibold shadow hover:bg-surface">
-                  <Camera className="size-4" /> Edit backdrop
+                <label aria-label="Edit backdrop" className="tap-target absolute right-3 top-3 flex cursor-pointer items-center gap-1.5 rounded-full bg-surface/90 px-3 py-1.5 text-xs font-semibold shadow hover:bg-surface">
+                  <Camera className="size-4" /> <span className="hidden sm:inline">Edit backdrop</span>
                   <input type="file" accept="image/*" className="hidden" onChange={uploadImage("bannerUrl")} />
                 </label>
               )}
             </div>
-            <div className="px-5 pb-5">
-              <div className="-mt-16 flex items-end justify-between sm:-mt-20">
+            <div className="px-4 pb-5 sm:px-5">
+              {/* Avatar size is fluid; pulling it up by half its size keeps it centred on the banner edge. */}
+              <div className="-mt-[clamp(2.75rem,11vw,4.25rem)] flex items-end justify-between gap-2">
                 <div className="relative">
-                  <Avatar user={profile} size={136} className="border-4 border-surface" />
+                  <Avatar user={profile} size="clamp(5.5rem, 22vw, 8.5rem)" className="border-4 border-surface" />
                   {isMe && (
                     <label className="absolute bottom-2 right-2 flex size-9 cursor-pointer items-center justify-center rounded-full border-2 border-surface bg-primary text-on-primary shadow hover:bg-primary-hover" title="Change photo">
                       <Camera className="size-4" />
@@ -176,7 +177,7 @@ export default function ProfilePage() {
               </div>
 
               <div className="mt-3 flex flex-wrap items-center gap-2">
-                <h1 className="text-2xl font-extrabold text-ink">{fullName(profile)}</h1>
+                <h1 className="text-title font-extrabold text-ink">{fullName(profile)}</h1>
                 {profile.isVerified && <VerifiedBadge />}
                 <RoleBadge role={profile.role} />
                 <TierBadge tier={profile.tier} size="md" />
@@ -209,7 +210,7 @@ export default function ProfilePage() {
                     {profile.stats.averageRating && (
                       <>
                         {" · "}
-                        <Star className="inline size-3.5 fill-accent text-accent" /> <span className="font-semibold">{profile.stats.averageRating.toFixed(1)}</span>{" "}
+                        <Star className="inline size-3.5 fill-primary text-primary" /> <span className="font-semibold">{profile.stats.averageRating.toFixed(1)}</span>{" "}
                         <span className="text-muted">({profile.stats.ratingCount})</span>
                       </>
                     )}
@@ -218,7 +219,7 @@ export default function ProfilePage() {
               </p>
 
               {!isMe && viewer && (
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="mt-4 flex flex-wrap gap-2 [&>*]:flex-1 sm:[&>*]:flex-none">
                   {canBook && (
                     <Button variant="accent" onClick={() => setBookingSlotId(slots[0]?.id ?? "")} disabled={slots.length === 0}>
                       <CalendarClock className="size-4" /> {slots.length ? "Book a session" : "No open slots"}
@@ -240,7 +241,7 @@ export default function ProfilePage() {
 
           {profile.bio && (
             <Section title="About">
-              <p className="whitespace-pre-wrap text-sm leading-relaxed">{profile.bio}</p>
+              <p className="measure whitespace-pre-wrap text-sm leading-relaxed">{profile.bio}</p>
             </Section>
           )}
 
@@ -336,7 +337,7 @@ export default function ProfilePage() {
                             key={slot.id}
                             disabled={!canBook}
                             onClick={() => setBookingSlotId(slot.id)}
-                            className="rounded-control border border-line px-2.5 py-1 text-xs font-semibold enabled:hover:border-primary enabled:hover:bg-primary-soft disabled:cursor-default"
+                            className="rounded-control border border-line px-2.5 py-1 text-xs font-semibold coarse:min-h-11 coarse:px-3.5 enabled:hover:border-primary enabled:hover:bg-primary-soft disabled:cursor-default"
                           >
                             {formatTime(slot.startsAt)}
                           </button>
@@ -363,7 +364,7 @@ export default function ProfilePage() {
               {achievements.badges.length === 0 ? (
                 <p className="text-sm text-muted">No badges yet.</p>
               ) : (
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,4.5rem),1fr))] gap-2">
                   {achievements.badges.map((badge) => (
                     <div key={badge.id} title={`${badge.name}: ${badge.description}`} className="flex flex-col items-center rounded-control bg-surface-muted p-2 text-center">
                       <span className="text-2xl">{badge.icon}</span>

@@ -20,8 +20,8 @@ function ReviewModal({ booking, onClose, onSaved }: { booking: Booking; onClose:
     <Modal title={`How was your session with ${booking.alumni.firstName}?`} onClose={onClose}>
       <div className="mb-4 flex justify-center gap-1">
         {[1, 2, 3, 4, 5].map((value) => (
-          <button key={value} onClick={() => setRating(value)} aria-label={`${value} stars`}>
-            <Star className={`size-9 ${value <= rating ? "fill-accent text-accent" : "text-line"}`} />
+          <button key={value} onClick={() => setRating(value)} aria-label={`${value} stars`} aria-pressed={value <= rating} className="tap-target">
+            <Star className={`size-9 ${value <= rating ? "fill-primary text-primary" : "text-line"}`} />
           </button>
         ))}
       </div>
@@ -195,7 +195,7 @@ export default function BookingsPage() {
             {pending.length === 0 ? (
               <EmptyState icon="📭" title={isAlumni ? "No requests yet" : "No pending requests"} description={isAlumni ? "Add availability so students can book you." : "Find an alumnus from your course and book an open slot."} />
             ) : (
-              <div className="grid gap-3 md:grid-cols-2">{pending.map((booking) => <BookingRow key={booking.id} booking={booking} onChange={replace} />)}</div>
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,22rem),1fr))] gap-3">{pending.map((booking) => <BookingRow key={booking.id} booking={booking} onChange={replace} />)}</div>
             )}
           </section>
           <section>
@@ -203,7 +203,7 @@ export default function BookingsPage() {
             {confirmed.length === 0 ? (
               <p className="text-sm text-muted">Nothing scheduled.</p>
             ) : (
-              <div className="grid gap-3 md:grid-cols-2">{confirmed.map((booking) => <BookingRow key={booking.id} booking={booking} onChange={replace} />)}</div>
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,22rem),1fr))] gap-3">{confirmed.map((booking) => <BookingRow key={booking.id} booking={booking} onChange={replace} />)}</div>
             )}
           </section>
           <section>
@@ -213,7 +213,7 @@ export default function BookingsPage() {
                 No past sessions. {!isAlumni && <Link href="/alumni" className="font-semibold text-primary">Book your first one →</Link>}
               </p>
             ) : (
-              <div className="grid gap-3 md:grid-cols-2">{past.map((booking) => <BookingRow key={booking.id} booking={booking} onChange={replace} />)}</div>
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,22rem),1fr))] gap-3">{past.map((booking) => <BookingRow key={booking.id} booking={booking} onChange={replace} />)}</div>
             )}
           </section>
         </div>

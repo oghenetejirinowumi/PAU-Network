@@ -40,30 +40,30 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_10%_0%,var(--primary-soft),transparent_45%),radial-gradient(circle_at_100%_100%,var(--accent-soft),transparent_45%)]">
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5">
+      <header className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-4 sm:py-5">
         <Logo />
         <div className="flex items-center gap-2">
-          <ButtonLink href="/login" variant="ghost">
+          <ButtonLink href="/login" variant="ghost" className="!px-3">
             Log in
           </ButtonLink>
           <ButtonLink href="/register">Join</ButtonLink>
         </div>
       </header>
 
-      <section className="mx-auto max-w-6xl px-4 pb-16 pt-10 sm:pt-16">
+      <section className="mx-auto max-w-6xl px-4 pb-12 pt-6 sm:pb-16 sm:pt-16">
         <p className="eyebrow mb-4">Pan-Atlantic University · Alumni network</p>
-        <h1 className="max-w-4xl text-4xl font-extrabold leading-[1.05] tracking-tight text-primary sm:text-6xl">
+        <h1 className="text-display max-w-4xl font-extrabold tracking-tight text-primary text-balance">
           Talk to PAU alumni who sat in <span className="text-muted/70">your</span> lectures.{" "}
           <span className="inline-block rounded-card bg-accent px-3 text-on-accent">Book in a minute.</span>
         </h1>
-        <p className="mt-6 max-w-2xl text-base text-muted sm:text-lg">
+        <p className="text-lead measure mt-6 text-muted">
           PAU Network connects students with alumni from their own course for mentorship sessions, live Q&amp;A spaces and direct messages.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
-          <ButtonLink href="/register?role=STUDENT" className="h-12 px-6">
+          <ButtonLink href="/register?role=STUDENT" className="h-12 flex-1 px-6 sm:flex-none">
             Join as a student <ArrowRight className="size-4" />
           </ButtonLink>
-          <ButtonLink href="/register?role=ALUMNI" variant="accent" className="h-12 px-6">
+          <ButtonLink href="/register?role=ALUMNI" variant="accent" className="h-12 flex-1 px-6 sm:flex-none">
             Join as alumni
           </ButtonLink>
         </div>
@@ -80,10 +80,10 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-6xl gap-4 px-4 pb-16 sm:grid-cols-2 lg:grid-cols-4">
+      <section className="mx-auto grid max-w-6xl grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-4 px-4 pb-16">
         {STEPS.map(({ icon: Icon, title, body }) => (
           <div key={title} className="rounded-card border border-line bg-surface p-5">
-            <Icon className="mb-3 size-6 text-accent" />
+            <Icon className="mb-3 size-6 text-primary" />
             <p className="font-bold text-primary">{title}</p>
             <p className="mt-1 text-sm text-muted">{body}</p>
           </div>

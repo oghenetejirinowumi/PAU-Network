@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Touch vs mouse variants: `coarse:` = finger input, `fine:` = mouse/trackpad.
+   (Tailwind v4's `hover:` already only applies on devices that can hover.) */
+@custom-variant coarse (@media (pointer: coarse));
+@custom-variant fine (@media (pointer: fine));
+
 /*
  * Colour tokens. Values live in src/theme.ts and are injected as CSS variables by the root layout.
  * This block only maps them to Tailwind utilities (bg-primary, text-muted, border-line, …).
@@ -41,15 +46,93 @@
   --font-mono: var(--font-jetbrains), ui-monospace, monospace;
 }
 
+/*
+ * Fluid root size: 16px up to 1536px wide, then grows smoothly to 24px on 4K screens,
+ * so the whole rem-based layout (type, spacing, max-widths) scales on large displays.
+ * Uses rem, so browser zoom and user font-size preferences still work.
+ */
+html {
+  font-size: clamp(1rem, calc(1rem + (100vw - 96rem) * 0.0035), 1.5rem);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-padding-top: 4.5rem; /* anchor links clear the sticky header */
+}
+
 body {
   background: var(--background);
   color: var(--ink);
+  overflow-x: clip; /* safety net: nothing may cause sideways scrolling at 320px */
+}
+
+img,
+video,
+iframe {
+  max-width: 100%;
+}
+img {
+  height: auto;
+}
+
+/* Visible keyboard focus everywhere (mouse clicks don't show it). */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Fluid type scale */
+.text-display {
+  font-size: clamp(2rem, 1.1rem + 4.5vw, 4.25rem);
+  line-height: 1.05;
+}
+.text-title {
+  font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem);
+  line-height: 1.15;
+}
+.text-lead {
+  font-size: clamp(1rem, 0.95rem + 0.35vw, 1.175rem);
+}
+
+/* Readable line length for long text */
+.measure {
+  max-width: 70ch;
+}
+
+/* Minimum 44×44px touch targets for icon buttons on touch screens (WCAG 2.5.5). */
+@media (pointer: coarse) {
+  .tap-target {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* Keeps the mobile bottom nav above the iPhone home indicator. */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.skip-link {
+  position: absolute;
+  inset-inline-start: 1rem;
+  top: -100px;
+  z-index: 200;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-control);
+  background: var(--primary);
+  color: var(--on-primary);
+  font-weight: 600;
+}
+.skip-link:focus {
+  top: 0.75rem;
 }
 
 /* Small uppercase label used across the app, as in the hackathon deck. */
 .eyebrow {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 0.6875rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--muted);
@@ -74,4 +157,19 @@ body {
 }
 .animate-pulse-live {
   animation: pulse-live 1.4s ease-in-out infinite;
+}
+
+/* Respect users who ask for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-float-up {
+    display: none;
+  }
 }

@@ -78,22 +78,22 @@ export default function ConversationPage() {
 
   return (
     <AppShell>
-      <Card className="flex h-[calc(100vh-9rem)] flex-col overflow-hidden md:h-[calc(100vh-7rem)]">
+      <Card className="flex h-[calc(100dvh-9rem-env(safe-area-inset-bottom))] min-h-[22rem] flex-col overflow-hidden md:h-[calc(100dvh-6.5rem)]">
         <div className="flex items-center gap-3 border-b border-line p-3">
-          <Link href="/messages" className="rounded-full p-1.5 text-muted hover:bg-surface-muted" aria-label="Back">
+          <Link href="/messages" className="tap-target rounded-full p-1.5 text-muted hover:bg-surface-muted" aria-label="Back">
             <ArrowLeft className="size-5" />
           </Link>
           <UserLine user={conversation.otherUser} />
         </div>
 
-        <div className="flex-1 space-y-2 overflow-y-auto bg-background p-4">
+        <div className="flex-1 space-y-2 overflow-y-auto overscroll-contain bg-background p-3 sm:p-4" aria-live="polite">
           {messages.map((message, index) => {
             const isMine = message.senderId === user.id;
             const showAvatar = !isMine && messages[index + 1]?.senderId !== message.senderId;
             return (
               <div key={message.id} className={`flex items-end gap-2 ${isMine ? "justify-end" : ""}`}>
                 {!isMine && <div className="w-7">{showAvatar && <Avatar user={conversation.otherUser} size={28} />}</div>}
-                <div className={`max-w-[75%] rounded-2xl px-3.5 py-2 text-sm ${isMine ? "rounded-br-md bg-primary text-on-primary" : "rounded-bl-md border border-line bg-surface"}`}>
+                <div className={`max-w-[min(75%,36rem)] break-words rounded-2xl px-3.5 py-2 text-sm ${isMine ? "rounded-br-md bg-primary text-on-primary" : "rounded-bl-md border border-line bg-surface"}`}>
                   <p className="whitespace-pre-wrap">{message.body}</p>
                   <p className={`mt-0.5 text-right text-[10px] ${isMine ? "opacity-70" : "text-muted"}`}>{formatTime(message.createdAt)}</p>
                 </div>
@@ -120,7 +120,7 @@ export default function ConversationPage() {
         ) : (
           <form onSubmit={send} className="flex items-center gap-2 border-t border-line p-3">
             <EmojiPicker onPick={(emoji) => setBody((current) => current + emoji)} />
-            <input value={body} onChange={(event) => setBody(event.target.value)} placeholder="Write a message…" maxLength={2000} className="flex-1 rounded-full border border-line bg-surface px-4 py-2 text-sm outline-none focus:border-primary" />
+            <input value={body} onChange={(event) => setBody(event.target.value)} placeholder="Write a message…" maxLength={2000} aria-label="Message" className="min-w-0 flex-1 rounded-full border border-line bg-surface px-4 py-2 text-base outline-none focus:border-primary sm:text-sm" />
             <Button type="submit" size="sm" className="!rounded-full" disabled={!body.trim()} isLoading={isSending} aria-label="Send">
               <Send className="size-4" />
             </Button>

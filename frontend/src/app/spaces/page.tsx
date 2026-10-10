@@ -69,7 +69,7 @@ function ScheduleSpaceModal({ onClose }: { onClose: () => void }) {
           Go live now
         </label>
         {!form.isStartingNow && (
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <Field label="Date">
               <input type="date" className={inputClass} value={form.date} onChange={(event) => setForm({ ...form, date: event.target.value })} />
             </Field>
@@ -185,7 +185,7 @@ export default function SpacesPage() {
               <h2 className="mb-3 flex items-center gap-2 font-bold">
                 <span className="animate-pulse-live size-2 rounded-full bg-live" /> Live now
               </h2>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">{live.map((space) => <SpaceCard key={space.id} space={space} onChange={load} />)}</div>
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,18rem),1fr))] gap-4">{live.map((space) => <SpaceCard key={space.id} space={space} onChange={load} />)}</div>
             </section>
           )}
           <section>
@@ -193,7 +193,7 @@ export default function SpacesPage() {
             {upcoming.length === 0 ? (
               <EmptyState icon="🎙️" title="No spaces scheduled" description={user?.role === "ALUMNI" ? "Host one: students will be notified." : "Follow alumni to hear when they schedule one."} />
             ) : (
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">{upcoming.map((space) => <SpaceCard key={space.id} space={space} onChange={load} />)}</div>
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,18rem),1fr))] gap-4">{upcoming.map((space) => <SpaceCard key={space.id} space={space} onChange={load} />)}</div>
             )}
           </section>
           {pastSpaces.length > 0 && (

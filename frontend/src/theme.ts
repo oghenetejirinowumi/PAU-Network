@@ -9,43 +9,53 @@
  * (`--color-<name>: var(--<name>);`) to get `bg-<name>`, `text-<name>`, `border-<name>` classes.
  */
 export const theme = {
+  /**
+   * Brand rule: ONE main colour, #0033CC, used with plenty of white.
+   * Every other colour is a lighter tint or darker shade of it, except the industry-standard
+   * status colours (success green, warning amber, danger red), which are kept for meaning.
+   *
+   * Scale of #0033CC used below (tint = mixed with white, shade = mixed with black):
+   *   tint 96% #F5F7FD · 92% #EBEFFB · 90% #E6EBFA · 88% #E0E7F9 · 85% #D9E0F7 · 65% #A6B8ED
+   *   tint 50% #8099E6 · 25% #4066D9 · MAIN #0033CC · shade 80% #0029A3 · 75% #002699
+   *   shade 55% #001C70 · 40% #001452 · 30% #000F3D
+   */
   colors: {
     // Brand
-    primary: "#1B0F5C", // deep indigo, from the hackathon deck
-    primaryHover: "#2B1B87",
-    primarySoft: "#ECE9FB", // tinted backgrounds, selected chips
+    primary: "#0033CC", // main colour
+    primaryHover: "#0029A3",
+    primarySoft: "#E6EBFA", // tinted backgrounds, selected chips
     onPrimary: "#FFFFFF",
-    accent: "#F5A623", // amber highlight
-    accentHover: "#E0941A",
-    accentSoft: "#FFF4DF",
-    onAccent: "#1B0F5C",
+    accent: "#A6B8ED", // light tint: highlights on blue, secondary buttons
+    accentHover: "#8099E6",
+    accentSoft: "#D9E0F7",
+    onAccent: "#001C70", // dark shade text on accent backgrounds
 
     // Surfaces and text
-    background: "#F6F5FB",
+    background: "#F5F7FD",
     surface: "#FFFFFF",
-    surfaceMuted: "#F1EFF8",
-    ink: "#15122B", // main text
-    muted: "#6B6785", // secondary text
-    line: "#E5E2EF", // borders and dividers
+    surfaceMuted: "#EBEFFB",
+    ink: "#000F3D", // main text (darkest shade)
+    muted: "#4066D9", // secondary text (5.1:1 on white, passes WCAG AA)
+    line: "#E0E7F9", // borders and dividers
 
-    // Status
+    // Status (industry-standard, the only non-blue colours)
     success: "#15803D",
     successSoft: "#E7F6EC",
     warning: "#B45309",
     warningSoft: "#FEF3E2",
     danger: "#B91C1C",
     dangerSoft: "#FDECEC",
-    live: "#E11D48", // "LIVE" badges on spaces
+    live: "#DC2626", // "LIVE" indicator on spaces
 
-    // Membership tiers (badges, rings, leaderboard)
-    tierBronze: "#B4703E",
-    tierSilver: "#8A93A6",
-    tierGold: "#D69E12",
-    tierPlatinum: "#5B6CF0",
+    // Membership tiers: deeper blue = higher tier
+    tierBronze: "#4066D9",
+    tierSilver: "#0033CC",
+    tierGold: "#002699",
+    tierPlatinum: "#001452",
   },
 
   /** Default profile backdrop when a user has not uploaded a banner. */
-  bannerGradient: "linear-gradient(120deg, #1B0F5C 0%, #3A2A9E 55%, #F5A623 130%)",
+  bannerGradient: "linear-gradient(120deg, #001452 0%, #0033CC 55%, #A6B8ED 120%)",
 
   radius: {
     card: "16px",

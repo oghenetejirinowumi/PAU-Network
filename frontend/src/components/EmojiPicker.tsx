@@ -18,11 +18,11 @@ export function EmojiPicker({ onPick, align = "left" }: { onPick: (emoji: string
 
   return (
     <div className="relative" ref={ref}>
-      <button type="button" onClick={() => setIsOpen((value) => !value)} className="rounded-full p-1.5 text-muted hover:bg-surface-muted hover:text-accent" aria-label="Add emoji">
+      <button type="button" onClick={() => setIsOpen((value) => !value)} className="tap-target rounded-full p-1.5 text-muted hover:bg-surface-muted hover:text-primary" aria-label="Add emoji" aria-expanded={isOpen}>
         <Smile className="size-5" />
       </button>
       {isOpen && (
-        <div className={`absolute bottom-10 z-40 grid w-64 grid-cols-6 gap-1 rounded-card border border-line bg-surface p-2 shadow-xl ${align === "right" ? "right-0" : "left-0"}`}>
+        <div className={`absolute bottom-full z-40 mb-2 grid w-[min(16rem,calc(100vw-2rem))] grid-cols-6 gap-1 rounded-card border border-line bg-surface p-2 shadow-xl ${align === "right" ? "right-0" : "left-0"}`}>
           {EMOJI_PICKER.map((emoji) => (
             <button
               key={emoji}
@@ -31,7 +31,7 @@ export function EmojiPicker({ onPick, align = "left" }: { onPick: (emoji: string
                 onPick(emoji);
                 setIsOpen(false);
               }}
-              className="rounded-md p-1 text-xl hover:bg-surface-muted"
+              aria-label={`Insert ${emoji}`} className="rounded-md p-1 text-xl hover:bg-surface-muted coarse:min-h-11"
             >
               {emoji}
             </button>

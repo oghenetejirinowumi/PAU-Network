@@ -96,10 +96,10 @@ export default function AwardsPage() {
       {!current ? (
         <Spinner />
       ) : (
-        <div className="grid gap-4 lg:grid-cols-[1fr_380px]">
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_23.75rem]">
           <div className="min-w-0 space-y-4">
             {featured && <AwardCard award={featured} isFeatured />}
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,20rem),1fr))] gap-4">
               {others.map((award) => (
                 <AwardCard key={award.id} award={award} />
               ))}
@@ -107,7 +107,7 @@ export default function AwardsPage() {
 
             <Card className="p-5">
               <p className="mb-4 font-bold text-primary">🏆 Alumni of the Month: past winners</p>
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,14rem),1fr))] gap-3">
                 {history.map((award) => (
                   <Link key={award.id} href={`/profile/${award.recipient.id}`} className="flex items-center gap-3 rounded-control p-2 hover:bg-surface-muted">
                     <Avatar user={award.recipient} size={36} />
@@ -145,7 +145,7 @@ export default function AwardsPage() {
                       )}
                     </div>
                     <div className="ml-10 mt-1 h-1 overflow-hidden rounded-full bg-surface-muted">
-                      <div className="h-full bg-accent" style={{ width: `${(nominee.voteCount / maxVotes) * 100}%` }} />
+                      <div className="h-full bg-primary" style={{ width: `${(nominee.voteCount / maxVotes) * 100}%` }} />
                     </div>
                   </div>
                 ))}

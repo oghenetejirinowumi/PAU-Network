@@ -26,7 +26,7 @@ function ProfileSummary() {
     <Card className="overflow-hidden">
       {user.bannerUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={user.bannerUrl} alt="" className="h-16 w-full object-cover" />
+        <img src={user.bannerUrl} alt="" loading="lazy" decoding="async" className="aspect-[4/1] w-full object-cover" />
       ) : (
         <div className="banner-default h-16" />
       )}
@@ -154,7 +154,7 @@ export default function FeedPage() {
 
   return (
     <AppShell wide>
-      <div className="grid gap-6 lg:grid-cols-[240px_1fr_300px]">
+      <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_17rem] md:gap-6 lg:grid-cols-[15rem_minmax(0,1fr)_18.75rem]">
         <aside className="hidden lg:block">
           <div className="sticky top-20">
             <ProfileSummary />
@@ -173,7 +173,7 @@ export default function FeedPage() {
             </Card>
           )}
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {(
               [
                 ["ALL", "All posts"],
@@ -184,7 +184,7 @@ export default function FeedPage() {
               <button
                 key={value}
                 onClick={() => setFilter(value)}
-                className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${filter === value ? "border-primary bg-primary text-on-primary" : "border-line bg-surface text-muted hover:text-ink"}`}
+                className={`max-w-full truncate rounded-full border px-3 py-1.5 text-xs font-semibold transition coarse:py-2.5 ${filter === value ? "border-primary bg-primary text-on-primary" : "border-line bg-surface text-muted hover:text-ink"}`}
               >
                 {label}
               </button>
@@ -218,7 +218,7 @@ export default function FeedPage() {
           )}
         </div>
 
-        <aside className="hidden lg:block">
+        <aside className="hidden md:block">
           <div className="sticky top-20">
             <Sidebar />
           </div>

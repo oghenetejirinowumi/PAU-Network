@@ -87,7 +87,7 @@ export default function AvailabilityPage() {
             <Plus className="size-4" /> Add a slot
           </p>
           <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 min-[400px]:grid-cols-2">
               <Field label="Date">
                 <input type="date" className={inputClass} min={todayInput()} value={single.date} onChange={(event) => setSingle({ ...single, date: event.target.value })} />
               </Field>
@@ -120,14 +120,15 @@ export default function AvailabilityPage() {
                     key={label}
                     type="button"
                     onClick={() => setWeekly({ ...weekly, days: weekly.days.includes(index) ? weekly.days.filter((day) => day !== index) : [...weekly.days, index] })}
-                    className={`rounded-full border px-3 py-1 text-xs font-semibold ${weekly.days.includes(index) ? "border-primary bg-primary text-on-primary" : "border-line text-muted"}`}
+                    aria-pressed={weekly.days.includes(index)}
+                    className={`rounded-full border px-3 py-1 text-xs font-semibold coarse:min-h-11 coarse:min-w-11 ${weekly.days.includes(index) ? "border-primary bg-primary text-on-primary" : "border-line text-muted"}`}
                   >
                     {label}
                   </button>
                 ))}
               </div>
             </Field>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 min-[400px]:grid-cols-2">
               <Field label="Time (WAT)">
                 <input type="time" className={inputClass} step={900} value={weekly.time} onChange={(event) => setWeekly({ ...weekly, time: event.target.value })} />
               </Field>
@@ -171,7 +172,7 @@ export default function AvailabilityPage() {
                             toast(errorMessage(caught), "error");
                           }
                         }}
-                        className="text-muted hover:text-danger"
+                        className="tap-target text-muted hover:text-danger"
                         aria-label="Delete slot"
                       >
                         <Trash2 className="size-3.5" />

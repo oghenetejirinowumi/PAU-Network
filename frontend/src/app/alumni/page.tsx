@@ -17,7 +17,7 @@ function AlumniCard({ alumnus }: { alumnus: DirectoryUser }) {
     <Link href={`/profile/${alumnus.id}`} className="group flex flex-col overflow-hidden rounded-card border border-line bg-surface transition hover:-translate-y-0.5 hover:shadow-lg">
       {alumnus.bannerUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={alumnus.bannerUrl} alt="" className="h-16 w-full object-cover" />
+        <img src={alumnus.bannerUrl} alt="" loading="lazy" decoding="async" className="h-16 w-full object-cover" />
       ) : (
         <div className="banner-default h-16" />
       )}
@@ -45,7 +45,7 @@ function AlumniCard({ alumnus }: { alumnus: DirectoryUser }) {
             </span>
           ))}
         </div>
-        <div className="mt-auto flex items-center justify-between border-t border-line pt-3 text-xs">
+        <div className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-line pt-3 text-xs">
           <TierBadge tier={alumnus.tier} />
           {alumnus.nextOpenSlot ? (
             <span className="flex items-center gap-1 font-medium text-success">
@@ -111,7 +111,7 @@ export default function AlumniDirectoryPage() {
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted" />
           <input className={`${inputClass} pl-9`} placeholder="Search by name, company, job title or skill…" value={filters.search} onChange={(event) => update({ search: event.target.value })} />
         </div>
-        <div className="grid grid-cols-2 gap-2 md:grid-cols-5">
+        <div className="grid grid-cols-1 gap-2 min-[480px]:grid-cols-2 lg:grid-cols-5">
           <select className={inputClass} value={filters.departmentId} onChange={(event) => update({ departmentId: event.target.value })}>
             <option value="">All departments</option>
             {departments.map((department) => (
@@ -138,7 +138,7 @@ export default function AlumniDirectoryPage() {
             <option value="GRADUATION_YEAR">Sort: Most recent class</option>
             <option value="NAME">Sort: Name</option>
           </select>
-          <label className="flex items-center gap-2 rounded-control border border-line px-3 text-sm">
+          <label className="flex min-h-10 items-center gap-2 rounded-control border border-line px-3 text-sm coarse:min-h-11">
             <input type="checkbox" checked={filters.hasOpenSlots} onChange={(event) => update({ hasOpenSlots: event.target.checked })} className="accent-[var(--primary)]" />
             Open slots only
           </label>
@@ -162,13 +162,13 @@ export default function AlumniDirectoryPage() {
           <p className="mb-3 text-sm text-muted">
             {results.meta.total} alumni{myDepartmentSelected ? ` from ${user?.department.name}` : ""}
           </p>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,15.5rem),1fr))] gap-4">
             {results.data.map((alumnus) => (
               <AlumniCard key={alumnus.id} alumnus={alumnus} />
             ))}
           </div>
           {results.meta.totalPages > 1 && (
-            <div className="mt-6 flex items-center justify-center gap-2">
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
               <Button variant="secondary" size="sm" disabled={page === 1} onClick={() => setPage(page - 1)}>
                 Previous
               </Button>

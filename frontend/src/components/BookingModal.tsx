@@ -50,7 +50,8 @@ export function BookingModal({ alumnus, slots, initialSlotId, onClose, onBooked 
                     <button
                       key={slot.id}
                       onClick={() => setSlotId(slot.id)}
-                      className={`rounded-control border px-3 py-1.5 text-sm font-semibold transition ${slotId === slot.id ? "border-primary bg-primary text-on-primary" : "border-line hover:border-primary"}`}
+                      aria-pressed={slotId === slot.id}
+                      className={`rounded-control border px-3 py-1.5 text-sm font-semibold transition coarse:min-h-11 ${slotId === slot.id ? "border-primary bg-primary text-on-primary" : "border-line hover:border-primary"}`}
                     >
                       {formatTime(slot.startsAt)}
                     </button>
@@ -63,7 +64,7 @@ export function BookingModal({ alumnus, slots, initialSlotId, onClose, onBooked 
         <Field label="What do you want to talk about?">
           <div className="flex flex-wrap gap-2">
             {(Object.keys(TOPIC_LABEL) as BookingTopic[]).map((value) => (
-              <button key={value} type="button" onClick={() => setTopic(value)} className={`rounded-full border px-3 py-1 text-xs font-semibold ${topic === value ? "border-accent bg-accent-soft text-on-accent" : "border-line text-muted"}`}>
+              <button key={value} type="button" aria-pressed={topic === value} onClick={() => setTopic(value)} className={`rounded-full border px-3 py-1 text-xs font-semibold coarse:min-h-11 coarse:px-4 ${topic === value ? "border-accent bg-accent-soft text-on-accent" : "border-line text-muted"}`}>
                 {TOPIC_LABEL[value]}
               </button>
             ))}
@@ -72,7 +73,7 @@ export function BookingModal({ alumnus, slots, initialSlotId, onClose, onBooked 
         <Field label="Message" hint={`${message.trim().length}/300 · at least 20 characters so ${alumnus.firstName} can prepare`}>
           <textarea className={inputClass} rows={4} maxLength={300} value={message} onChange={(event) => setMessage(event.target.value)} placeholder="I'm a 300L student and I'd love your advice on…" />
         </Field>
-        <div className="flex gap-2">
+        <div className="flex flex-col-reverse gap-2 min-[400px]:flex-row">
           <Button variant="secondary" className="flex-1" onClick={onClose}>
             Cancel
           </Button>

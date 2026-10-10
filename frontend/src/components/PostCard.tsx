@@ -15,18 +15,20 @@ function ReactionButton({ viewerReaction, onReact }: { viewerReaction: ReactionT
   const [isOpen, setIsOpen] = useState(false);
   const current = REACTIONS.find((reaction) => reaction.type === viewerReaction);
   return (
-    <div className="relative" onMouseEnter={() => setIsOpen(true)} onMouseLeave={() => setIsOpen(false)}>
+    <div className="relative flex items-center" onMouseEnter={() => setIsOpen(true)} onMouseLeave={() => setIsOpen(false)}>
       {isOpen && (
-        <div className="absolute -top-12 left-0 z-20 flex gap-1 rounded-full border border-line bg-surface px-2 py-1 shadow-lg">
+        <div role="menu" aria-label="Reactions" className="absolute -top-12 left-0 z-20 flex gap-1 rounded-full border border-line bg-surface px-2 py-1 shadow-lg">
           {REACTIONS.map((reaction) => (
             <button
               key={reaction.type}
               title={reaction.label}
+              aria-label={reaction.label}
+              role="menuitem"
               onClick={() => {
                 onReact(reaction.type);
                 setIsOpen(false);
               }}
-              className="text-2xl transition hover:-translate-y-1 hover:scale-125"
+              className="tap-target text-2xl transition hover:-translate-y-1 hover:scale-125"
             >
               {reaction.emoji}
             </button>
@@ -39,6 +41,14 @@ function ReactionButton({ viewerReaction, onReact }: { viewerReaction: ReactionT
       >
         <span className="text-base">{current ? current.emoji : "👍"}</span>
         {current ? current.label : "React"}
+      </button>
+      <button
+        onClick={() => setIsOpen((value) => !value)}
+        className="hidden rounded-control px-2 text-muted coarse:inline-flex coarse:min-h-11 coarse:items-center"
+        aria-label="Choose a reaction"
+        aria-expanded={isOpen}
+      >
+        ▾
       </button>
     </div>
   );
@@ -93,11 +103,11 @@ function CommentComposer({ postId, parentId, onCreated, autoFocus }: { postId: s
           value={body}
           onChange={(event) => setBody(event.target.value)}
           placeholder={parentId ? "Write a reply…" : "Add a comment…"}
-          className="min-w-0 flex-1 bg-transparent py-2 text-sm outline-none"
+          aria-label={parentId ? "Reply" : "Comment"} className="min-w-0 flex-1 bg-transparent py-2 text-base outline-none sm:text-sm"
           maxLength={1000}
         />
         <EmojiPicker align="right" onPick={(emoji) => setBody((current) => current + emoji)} />
-        <button type="submit" disabled={!body.trim() || isSending} className="rounded-full p-1.5 text-primary disabled:text-muted" aria-label="Send">
+        <button type="submit" disabled={!body.trim() || isSending} className="tap-target rounded-full p-1.5 text-primary disabled:text-muted" aria-label="Send">
           <Send className="size-4" />
         </button>
       </div>
@@ -198,14 +208,16 @@ export function PostCard({ post: initialPost, onDeleted }: { post: Post; onDelet
   };
 
   return (
-    <article className="rounded-card border border-line bg-surface">
+    <article className="@container rounded-card border border-line bg-surface">
       <div className="flex items-start justify-between gap-3 p-4 pb-2">
         <UserLine user={post.author} size={48} subtitle={<>{post.author.jobTitle && post.author.company ? `${post.author.jobTitle} at ${post.author.company}` : post.author.headline} · {timeAgo(post.createdAt)}</>} />
-        <div className="flex items-center gap-1">
-          <TierBadge tier={post.author.tier} />
+        <div className="flex shrink-0 items-center gap-1">
+          <span className="hidden @sm:inline-flex">
+            <TierBadge tier={post.author.tier} />
+          </span>
           {user?.id === post.author.id && (
             <div className="relative">
-              <button onClick={() => setIsMenuOpen((value) => !value)} className="rounded-full p-1 text-muted hover:bg-surface-muted" aria-label="Post options">
+              <button onClick={() => setIsMenuOpen((value) => !value)} className="tap-target rounded-full p-1 text-muted hover:bg-surface-muted" aria-label="Post options" aria-expanded={isMenuOpen}>
                 <MoreHorizontal className="size-5" />
               </button>
               {isMenuOpen && (
@@ -219,7 +231,7 @@ export function PostCard({ post: initialPost, onDeleted }: { post: Post; onDelet
       </div>
 
       <div className="px-4 pb-3">
-        <p className={`whitespace-pre-wrap text-[15px] leading-relaxed ${isExpanded ? "" : "line-clamp-4"}`}>{post.body}</p>
+        <p className={`whitespace-pre-wrap break-words text-[0.9375rem] leading-relaxed ${isExpanded ? "" : "line-clamp-4"}`}>{post.body}</p>
         {isLong && !isExpanded && (
           <button onClick={() => setIsExpanded(true)} className="mt-1 text-sm font-semibold text-muted hover:text-primary">
             …see more
@@ -228,7 +240,7 @@ export function PostCard({ post: initialPost, onDeleted }: { post: Post; onDelet
       </div>
       {post.imageUrl && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={post.imageUrl} alt="" className="max-h-[480px] w-full border-y border-line object-cover" />
+        <img src={post.imageUrl} alt="" loading="lazy" decoding="async" width={1200} height={675} className="aspect-video max-h-[30rem] w-full border-y border-line object-cover" />
       )}
 
       <div className="flex items-center justify-between px-4 py-2">
@@ -310,18 +322,20 @@ export function PostComposer({ onCreated }: { onCreated: (post: Post) => void })
   return (
     <div className="rounded-card border border-line bg-surface p-4">
       <div className="flex gap-3">
-        <Avatar user={user} size={48} />
+        <span className="hidden shrink-0 min-[400px]:block">
+          <Avatar user={user} size={48} />
+        </span>
         <textarea
           value={body}
           onChange={(event) => setBody(event.target.value)}
           placeholder={`Share advice, an opportunity or a win with PAU students, ${user.firstName}…`}
           rows={body ? 4 : 2}
           maxLength={3000}
-          className="flex-1 resize-none rounded-control border border-line bg-surface px-3 py-2 text-sm outline-none focus:border-primary"
+          aria-label="Write a post" className="min-w-0 flex-1 resize-none rounded-control border border-line bg-surface px-3 py-2 text-base outline-none focus:border-primary sm:text-sm"
         />
       </div>
       {imageUrl && (
-        <div className="relative ml-[60px] mt-3">
+        <div className="relative mt-3 sm:ml-[3.75rem]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={imageUrl} alt="" className="max-h-60 rounded-control object-cover" />
           <button onClick={() => setImageUrl(null)} className="absolute right-2 top-2 rounded-full bg-ink/70 px-2 py-0.5 text-xs text-on-primary">
@@ -329,10 +343,10 @@ export function PostComposer({ onCreated }: { onCreated: (post: Post) => void })
           </button>
         </div>
       )}
-      <div className="ml-[60px] mt-2 flex items-center justify-between">
+      <div className="mt-2 flex items-center justify-between sm:ml-[3.75rem]">
         <div className="flex items-center gap-1">
           <EmojiPicker onPick={(emoji) => setBody((current) => current + emoji)} />
-          <label className="cursor-pointer rounded-full p-1.5 text-muted hover:bg-surface-muted hover:text-accent" title="Add a photo">
+          <label className="tap-target cursor-pointer rounded-full p-1.5 text-muted hover:bg-surface-muted hover:text-primary" title="Add a photo">
             <span className="text-lg leading-none">🖼️</span>
             <input type="file" accept="image/*" className="hidden" onChange={attach} />
           </label>

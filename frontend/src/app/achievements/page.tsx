@@ -70,14 +70,14 @@ export default function AchievementsPage() {
     <AppShell wide>
       <PageHeader eyebrow="Achievements" title="Points, tiers and badges" description="Earn points for helping and learning. Climb from Bronze to Platinum and collect badges along the way." />
 
-      <div className="grid gap-4 lg:grid-cols-[1fr_380px]">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_23.75rem]">
         <div className="min-w-0 space-y-4">
           <Card className="overflow-hidden">
             <div className="bg-primary p-6 text-on-primary">
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
                   <p className="eyebrow !text-accent">Your tier</p>
-                  <p className="mt-1 text-4xl font-black">{TIER_LABEL[achievements.tier]}</p>
+                  <p className="text-display mt-1 font-black">{TIER_LABEL[achievements.tier]}</p>
                   <p className="text-sm opacity-80">{achievements.points.toLocaleString()} lifetime points</p>
                 </div>
                 <div className="text-6xl">{{ BRONZE: "🥉", SILVER: "🥈", GOLD: "🥇", PLATINUM: "💎" }[achievements.tier]}</div>
@@ -87,7 +87,7 @@ export default function AchievementsPage() {
               </div>
               <p className="mt-2 text-xs opacity-80">{next ? `${(next.minPoints - achievements.points).toLocaleString()} points to ${TIER_LABEL[next.tier]}` : "You've reached the top tier 👑"}</p>
             </div>
-            <div className="grid grid-cols-4 divide-x divide-line">
+            <div className="grid grid-cols-2 divide-line min-[480px]:grid-cols-4 min-[480px]:divide-x">
               {TIERS.map((item) => (
                 <div key={item.tier} className={`p-3 text-center ${item.tier === achievements.tier ? "bg-primary-soft" : ""}`}>
                   <p className={`text-sm font-bold ${TIER_CLASSES[item.tier].text}`}>{TIER_LABEL[item.tier]}</p>
@@ -102,7 +102,7 @@ export default function AchievementsPage() {
               Badges · {achievements.badges.length}/{relevantBadges.length}
             </p>
             <p className="mb-4 text-xs text-muted">Each badge has a Bronze, Silver, Gold or Platinum level. Greyed-out badges are still to earn.</p>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,9rem),1fr))] gap-3">
               {relevantBadges.map((badge) => {
                 const isEarned = earned.has(badge.code);
                 return (

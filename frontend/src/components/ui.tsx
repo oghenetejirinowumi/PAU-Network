@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { BadgeCheck, Loader2, X } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useId } from "react";
 import { fullName, initials, TIER_CLASSES, TIER_LABEL } from "@/lib/format";
 import type { Tier, UserSummary } from "@/lib/types";
 
@@ -25,7 +25,8 @@ export function Button({
   children,
   ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: ButtonVariant; size?: "sm" | "md"; isLoading?: boolean }) {
-  const sizing = size === "sm" ? "h-8 px-3 text-xs" : "h-10 px-4 text-sm";
+  // 44px tall on touch screens (WCAG target size), compact with a mouse.
+  const sizing = size === "sm" ? "h-8 coarse:h-11 px-3 text-xs" : "h-10 coarse:h-11 px-4 text-sm";
   return (
     <button
       className={`inline-flex items-center justify-center gap-1.5 rounded-control font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 ${sizing} ${BUTTON_VARIANTS[variant]} ${className}`}
@@ -40,7 +41,7 @@ export function Button({
 
 export function ButtonLink({ href, variant = "primary", className = "", children }: { href: string; variant?: ButtonVariant; className?: string; children: React.ReactNode }) {
   return (
-    <Link href={href} className={`inline-flex h-10 items-center justify-center gap-1.5 rounded-control px-4 text-sm font-semibold transition ${BUTTON_VARIANTS[variant]} ${className}`}>
+    <Link href={href} className={`inline-flex h-10 coarse:h-11 items-center justify-center gap-1.5 rounded-control px-4 text-sm font-semibold transition ${BUTTON_VARIANTS[variant]} ${className}`}>
       {children}
     </Link>
   );
@@ -55,15 +56,15 @@ export function Card({ className = "", children }: { className?: string; childre
 export function PageHeader({ eyebrow, title, description, action }: { eyebrow?: string; title: string; description?: string; action?: React.ReactNode }) {
   return (
     <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
-      <div>
+      <div className="min-w-0">
         {eyebrow && (
           <p className="eyebrow mb-2 flex items-center gap-2">
             <span className="inline-block h-0.5 w-5 bg-accent" />
             {eyebrow}
           </p>
         )}
-        <h1 className="text-2xl font-extrabold tracking-tight text-primary sm:text-3xl">{title}</h1>
-        {description && <p className="mt-1 max-w-2xl text-sm text-muted">{description}</p>}
+        <h1 className="text-title font-extrabold tracking-tight text-primary text-balance">{title}</h1>
+        {description && <p className="measure mt-1 text-sm text-muted">{description}</p>}
       </div>
       {action}
     </div>
@@ -91,6 +92,15 @@ export function Spinner({ label = "Loading…" }: { label?: string }) {
 }
 
 export function Modal({ title, onClose, children, wide }: { title: string; onClose: () => void; children: React.ReactNode; wide?: boolean }) {
+  const titleId = useId();
+  useEffect(() => {
+    // Lock background scroll while the dialog is open.
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, []);
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => event.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
@@ -99,12 +109,15 @@ export function Modal({ title, onClose, children, wide }: { title: string; onClo
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/50 p-0 sm:items-center sm:p-4" onClick={onClose}>
       <div
-        className={`max-h-[92vh] w-full overflow-y-auto rounded-t-card bg-surface p-5 shadow-2xl sm:rounded-card ${wide ? "sm:max-w-2xl" : "sm:max-w-md"}`}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        className={`safe-bottom max-h-[92dvh] w-full overflow-y-auto overscroll-contain rounded-t-card bg-surface p-4 shadow-2xl sm:rounded-card sm:p-5 ${wide ? "sm:max-w-2xl" : "sm:max-w-md"}`}
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-primary">{title}</h2>
-          <button onClick={onClose} className="rounded-full p-1 text-muted hover:bg-surface-muted" aria-label="Close">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <h2 id={titleId} className="text-lg font-bold text-primary">{title}</h2>
+          <button autoFocus onClick={onClose} className="tap-target rounded-full p-1 text-muted hover:bg-surface-muted" aria-label="Close">
             <X className="size-5" />
           </button>
         </div>
@@ -117,7 +130,7 @@ export function Modal({ title, onClose, children, wide }: { title: string; onClo
 // ───── Form fields ─────
 
 export const inputClass =
-  "w-full rounded-control border border-line bg-surface px-3 py-2 text-sm outline-none transition placeholder:text-muted/70 focus:border-primary focus:ring-2 focus:ring-primary-soft";
+  "w-full min-w-0 rounded-control border border-line bg-surface px-3 py-2 text-base sm:text-sm coarse:min-h-11 outline-none transition placeholder:text-muted/70 focus:border-primary focus:ring-2 focus:ring-primary-soft";
 
 export function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
@@ -131,12 +144,17 @@ export function Field({ label, hint, children }: { label: string; hint?: string;
 
 // ───── People ─────
 
-export function Avatar({ user, size = 40, className = "" }: { user: Pick<UserSummary, "firstName" | "lastName" | "avatarUrl"> & { tier?: Tier }; size?: number; className?: string }) {
+/**
+ * `size`: a number (px at the 16px base, converted to rem so avatars scale on large screens)
+ * or any CSS length for fluid sizing, e.g. "clamp(5.5rem, 24vw, 8.5rem)".
+ */
+export function Avatar({ user, size = 40, className = "" }: { user: Pick<UserSummary, "firstName" | "lastName" | "avatarUrl"> & { tier?: Tier }; size?: number | string; className?: string }) {
   const ring = user.tier ? `ring-2 ring-offset-2 ring-offset-surface ${TIER_CLASSES[user.tier].ring}` : "";
-  const style = { width: size, height: size, fontSize: Math.max(11, size * 0.36) };
+  const length = typeof size === "number" ? `${size / 16}rem` : size;
+  const style = { width: length, height: length, fontSize: typeof size === "number" ? `${Math.max(11, size * 0.36) / 16}rem` : `calc(${size} * 0.36)` };
   if (user.avatarUrl) {
     // eslint-disable-next-line @next/next/no-img-element
-    return <img src={user.avatarUrl} alt={fullName(user)} style={style} className={`shrink-0 rounded-full object-cover ${ring} ${className}`} />;
+    return <img src={user.avatarUrl} alt={fullName(user)} loading="lazy" decoding="async" style={style} className={`shrink-0 rounded-full object-cover ${ring} ${className}`} />;
   }
   return (
     <div style={style} className={`flex shrink-0 items-center justify-center rounded-full bg-primary-soft font-bold text-primary ${ring} ${className}`}>

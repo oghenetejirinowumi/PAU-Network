@@ -270,8 +270,8 @@ function SettingsContent() {
               <div className="banner-default aspect-[4/1] w-full" />
             )}
             <div className="absolute right-3 top-3 flex gap-2">
-              <label className="flex cursor-pointer items-center gap-1.5 rounded-full bg-surface/90 px-3 py-1.5 text-xs font-semibold shadow hover:bg-surface">
-                <Camera className="size-4" /> {profile.bannerUrl ? "Change backdrop" : "Upload backdrop"}
+              <label aria-label="Change backdrop" className="tap-target flex cursor-pointer items-center gap-1.5 rounded-full bg-surface/90 px-3 py-1.5 text-xs font-semibold shadow hover:bg-surface">
+                <Camera className="size-4" /> <span className="hidden sm:inline">{profile.bannerUrl ? "Change backdrop" : "Upload backdrop"}</span>
                 <input type="file" accept="image/*" className="hidden" onChange={uploadImage("bannerUrl")} />
               </label>
               {profile.bannerUrl && (
@@ -281,9 +281,9 @@ function SettingsContent() {
               )}
             </div>
           </div>
-          <div className="flex items-end gap-4 px-5 pb-5">
-            <div className="relative -mt-12">
-              <Avatar user={profile} size={112} className="border-4 border-surface" />
+          <div className="flex flex-wrap items-end gap-x-4 gap-y-2 px-4 pb-5 sm:px-5">
+            <div className="relative -mt-[clamp(2.5rem,10vw,3.5rem)]">
+              <Avatar user={profile} size="clamp(5rem, 20vw, 7rem)" className="border-4 border-surface" />
               <label className="absolute bottom-1 right-1 flex size-8 cursor-pointer items-center justify-center rounded-full border-2 border-surface bg-primary text-on-primary" title="Change photo">
                 <Camera className="size-4" />
                 <input type="file" accept="image/*" className="hidden" onChange={uploadImage("avatarUrl")} />
@@ -344,7 +344,7 @@ function SettingsContent() {
                   }}
                   onBlur={addSkill}
                   placeholder="Add a skill…"
-                  className="min-w-32 flex-1 bg-transparent text-sm outline-none"
+                  className="min-w-32 flex-1 bg-transparent text-base outline-none sm:text-sm"
                 />
               </div>
             </Field>

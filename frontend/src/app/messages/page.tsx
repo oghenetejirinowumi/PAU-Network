@@ -64,12 +64,13 @@ function MessagesContent() {
         title="Messages"
         description={user?.role === "STUDENT" ? "Send a message request from any alumni profile. Once they accept, you can chat freely." : "Students send message requests. Accept the ones you can help with."}
       />
-      <div className="mb-4 flex gap-2">
+      <div className="mb-4 flex flex-wrap gap-2">
         {tabs.map(([value, label]) => (
           <button
             key={value}
             onClick={() => setBox(value)}
-            className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${box === value ? "border-primary bg-primary text-on-primary" : "border-line bg-surface text-muted"}`}
+            aria-pressed={box === value}
+            className={`rounded-full border px-3 py-1.5 text-xs font-semibold coarse:py-2.5 ${box === value ? "border-primary bg-primary text-on-primary" : "border-line bg-surface text-muted"}`}
           >
             {label}
           </button>
@@ -110,7 +111,7 @@ function MessagesContent() {
               return (
                 <div key={conversation.id}>
                   {content}
-                  <div className="flex gap-2 px-4 pb-4 pl-[76px]">
+                  <div className="flex flex-wrap gap-2 px-4 pb-4 sm:pl-[76px]">
                     <Button size="sm" onClick={() => respond(conversation, "accept")}>
                       Accept
                     </Button>

@@ -148,7 +148,7 @@ export default function SpaceRoomPage() {
         <ArrowLeft className="size-4" /> All spaces
       </Link>
 
-      <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_22.5rem]">
         <div className="min-w-0 space-y-4">
           <Card className="relative overflow-hidden">
             <div className={`p-5 ${isLive ? "bg-gradient-to-br from-primary to-primary-hover text-on-primary" : ""}`}>
@@ -156,7 +156,7 @@ export default function SpaceRoomPage() {
                 <StatusPill status={space.status} />
                 {space.department && <span className={`text-xs ${isLive ? "opacity-80" : "text-muted"}`}>For {space.department.name}</span>}
               </div>
-              <h1 className="mt-2 text-2xl font-extrabold">{space.title}</h1>
+              <h1 className="text-title mt-2 font-extrabold text-balance">{space.title}</h1>
               {space.description && <p className={`mt-1 text-sm ${isLive ? "opacity-85" : "text-muted"}`}>{space.description}</p>}
               <p className={`mt-3 text-xs ${isLive ? "opacity-80" : "text-muted"}`}>
                 {isLive ? `Live since ${space.startedAt ? timeAgo(space.startedAt) : "now"} · ${space.participants.filter((participant) => participant.joinedAt && !participant.leftAt).length} in the room` : formatSlot(space.scheduledStartAt)}
@@ -211,7 +211,7 @@ export default function SpaceRoomPage() {
                 title="Space audio and video"
                 src={`${space.meetingUrl}#userInfo.displayName="${encodeURIComponent(fullName(user))}"&config.prejoinPageEnabled=false&config.startWithVideoMuted=true&config.startWithAudioMuted=${space.viewer.role === "LISTENER"}`}
                 allow="camera; microphone; display-capture; autoplay"
-                className="h-[420px] w-full border-t border-line"
+                className="h-[60dvh] w-full border-t border-line sm:aspect-video sm:h-auto sm:max-h-[75dvh]"
               />
             )}
           </Card>
@@ -226,7 +226,7 @@ export default function SpaceRoomPage() {
               ))}
             </div>
             <p className="eyebrow mb-4">On stage</p>
-            <div className="flex flex-wrap gap-6">
+            <div className="flex flex-wrap gap-4 sm:gap-6">
               {stage.map((participant) => (
                 <ParticipantTile
                   key={participant.userId}
@@ -259,7 +259,7 @@ export default function SpaceRoomPage() {
             {space.viewer.isInRoom && isLive && (
               <div className="mt-6 flex flex-wrap gap-1 border-t border-line pt-4">
                 {SPACE_REACTION_EMOJIS.map((emoji) => (
-                  <button key={emoji} onClick={() => socket?.emit("space:react", { spaceId: space.id, emoji })} className="rounded-full p-1.5 text-2xl transition hover:scale-125 hover:bg-surface-muted">
+                  <button key={emoji} aria-label={`React ${emoji}`} onClick={() => socket?.emit("space:react", { spaceId: space.id, emoji })} className="tap-target rounded-full p-1.5 text-2xl transition hover:scale-125 hover:bg-surface-muted">
                     {emoji}
                   </button>
                 ))}
@@ -303,7 +303,7 @@ export default function SpaceRoomPage() {
                 }}
                 className="mb-4 flex gap-2"
               >
-                <input value={question} onChange={(event) => setQuestion(event.target.value)} minLength={5} maxLength={300} placeholder="Ask the host something…" className="min-w-0 flex-1 rounded-full border border-line px-3 py-2 text-sm outline-none focus:border-primary" />
+                <input value={question} onChange={(event) => setQuestion(event.target.value)} minLength={5} maxLength={300} placeholder="Ask the host something…" aria-label="Your question" className="min-w-0 flex-1 rounded-full border border-line px-3 py-2 text-base outline-none focus:border-primary sm:text-sm" />
                 <Button type="submit" size="sm" className="!rounded-full" disabled={question.trim().length < 5} aria-label="Ask">
                   <Send className="size-4" />
                 </Button>
