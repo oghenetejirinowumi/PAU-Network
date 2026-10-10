@@ -47,11 +47,11 @@ export const theme = {
     dangerSoft: "#FDECEC",
     live: "#DC2626", // "LIVE" indicator on spaces
 
-    // Membership tiers: deeper blue = higher tier
-    tierBronze: "#4066D9",
-    tierSilver: "#0033CC",
-    tierGold: "#002699",
-    tierPlatinum: "#001452",
+    // Membership tiers: deliberately distinct colours so medals and badges read as different levels.
+    tierBronze: "#B45309",
+    tierSilver: "#94A3B8",
+    tierGold: "#F59E0B",
+    tierPlatinum: "#6D28D9",
   },
 
   /** Default profile backdrop when a user has not uploaded a banner. */

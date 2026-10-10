@@ -6,16 +6,18 @@ import { Suspense, useEffect, useState } from "react";
 import { GraduationCap, Briefcase } from "lucide-react";
 import { Logo } from "@/components/AppShell";
 import { Button, Card, Field, inputClass } from "@/components/ui";
-import { api, errorMessage } from "@/lib/api";
+import { API_URL, api, errorMessage } from "@/lib/api";
 import { useSession } from "@/lib/session";
 import type { Department } from "@/lib/types";
 
 const currentYear = new Date().getFullYear();
 
 function RegisterForm() {
-  const { register } = useSession();
+  const { register, registerLinkedIn } = useSession();
   const router = useRouter();
-  const initialRole = useSearchParams().get("role") === "ALUMNI" ? "ALUMNI" : "STUDENT";
+  const searchParams = useSearchParams();
+  const linkedInRegistration = searchParams.get("linkedin") === "1";
+  const initialRole = searchParams.get("role") === "ALUMNI" ? "ALUMNI" : "STUDENT";
   const [role, setRole] = useState<"STUDENT" | "ALUMNI">(initialRole);
   const [departments, setDepartments] = useState<Department[]>([]);
   const [form, setForm] = useState({
@@ -39,6 +41,14 @@ function RegisterForm() {
   }, []);
 
   useEffect(() => {
+    if (!linkedInRegistration) return;
+    api
+      .get<{ email: string; firstName: string; lastName: string; avatarUrl: string | null }>("/auth/linkedin/pending")
+      .then(({ data }) => setForm((current) => ({ ...current, email: data.email, firstName: data.firstName, lastName: data.lastName })))
+      .catch((caught) => setError(errorMessage(caught)));
+  }, [linkedInRegistration]);
+
+  useEffect(() => {
     setForm((current) => ({ ...current, graduationYear: String(role === "STUDENT" ? currentYear + 2 : currentYear - 3) }));
   }, [role]);
 
@@ -48,13 +58,29 @@ function RegisterForm() {
     event.preventDefault();
     setError("");
     setIsSubmitting(true);
-    const common = { role, email: form.email, password: form.password, firstName: form.firstName, lastName: form.lastName, departmentId: form.departmentId, graduationYear: Number(form.graduationYear) };
+    const common = {
+      role,
+      departmentId: form.departmentId,
+      graduationYear: Number(form.graduationYear),
+    };
+    const studentInput = { ...common, studentLevel: Number(form.studentLevel) };
+    const alumniInput = {
+      ...common,
+      jobTitle: form.jobTitle,
+      company: form.company,
+      industry: form.industry || undefined,
+      location: form.location || undefined,
+    };
     try {
-      await register(
-        role === "STUDENT"
-          ? { ...common, studentLevel: Number(form.studentLevel) }
-          : { ...common, jobTitle: form.jobTitle, company: form.company, industry: form.industry || undefined, location: form.location || undefined },
-      );
+      if (linkedInRegistration) {
+        await registerLinkedIn(role === "STUDENT" ? studentInput : alumniInput);
+      } else {
+        await register(
+          role === "STUDENT"
+            ? { ...common, email: form.email, password: form.password, firstName: form.firstName, lastName: form.lastName, studentLevel: Number(form.studentLevel) }
+            : { ...common, email: form.email, password: form.password, firstName: form.firstName, lastName: form.lastName, jobTitle: form.jobTitle, company: form.company, industry: form.industry || undefined, location: form.location || undefined },
+        );
+      }
       router.replace("/settings?welcome=1");
     } catch (caught) {
       setError(errorMessage(caught));
@@ -70,7 +96,20 @@ function RegisterForm() {
         </div>
         <Card className="p-6">
           <h1 className="text-xl font-bold text-primary">Join PAU Network</h1>
-          <p className="mb-5 text-sm text-muted">Students find mentors. Alumni give back on their own schedule.</p>
+          <p className="mb-5 text-sm text-muted">
+            {linkedInRegistration ? "LinkedIn confirmed your identity. Complete your PAU details to finish joining." : "Students find mentors. Alumni give back on their own schedule."}
+          </p>
+          {!linkedInRegistration && (
+            <>
+              <a
+                href={`${API_URL}/auth/linkedin`}
+                className="mb-4 flex h-10 items-center justify-center rounded-control border border-line bg-surface text-sm font-semibold text-ink transition hover:bg-surface-muted"
+              >
+                Sign up with LinkedIn
+              </a>
+              <p className="mb-4 text-center text-xs text-muted">or create an account with email</p>
+            </>
+          )}
 
           <div className="mb-5 grid grid-cols-2 gap-2">
             {[
@@ -91,18 +130,20 @@ function RegisterForm() {
           <form className="space-y-4" onSubmit={submit}>
             <div className="grid grid-cols-2 gap-3">
               <Field label="First name">
-                <input className={inputClass} value={form.firstName} onChange={update("firstName")} required />
+                <input className={inputClass} value={form.firstName} onChange={update("firstName")} required readOnly={linkedInRegistration} />
               </Field>
               <Field label="Last name">
-                <input className={inputClass} value={form.lastName} onChange={update("lastName")} required />
+                <input className={inputClass} value={form.lastName} onChange={update("lastName")} required readOnly={linkedInRegistration} />
               </Field>
             </div>
             <Field label="Email">
-              <input className={inputClass} type="email" value={form.email} onChange={update("email")} required />
+              <input className={inputClass} type="email" value={form.email} onChange={update("email")} required readOnly={linkedInRegistration} />
             </Field>
-            <Field label="Password" hint="At least 8 characters">
-              <input className={inputClass} type="password" minLength={8} value={form.password} onChange={update("password")} required />
-            </Field>
+            {!linkedInRegistration && (
+              <Field label="Password" hint="At least 8 characters">
+                <input className={inputClass} type="password" minLength={8} value={form.password} onChange={update("password")} required />
+              </Field>
+            )}
             <Field label="Department">
               <select className={inputClass} value={form.departmentId} onChange={update("departmentId")} required>
                 <option value="">Select your course</option>
@@ -153,7 +194,7 @@ function RegisterForm() {
 
             {error && <p className="rounded-control bg-danger-soft px-3 py-2 text-sm text-danger">{error}</p>}
             <Button type="submit" className="w-full" isLoading={isSubmitting}>
-              Create account
+              {linkedInRegistration ? "Finish creating account" : "Create account"}
             </Button>
           </form>
           <p className="mt-4 text-center text-sm text-muted">

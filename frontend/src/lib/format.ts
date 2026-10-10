@@ -61,11 +61,11 @@ export const reactionEmoji = (type: ReactionType) => REACTIONS.find((reaction) =
 
 export const TIER_LABEL: Record<Tier, string> = { BRONZE: "Bronze", SILVER: "Silver", GOLD: "Gold", PLATINUM: "Platinum" };
 /** Tailwind classes per tier; colours come from theme.ts (tierBronze, …). */
-export const TIER_CLASSES: Record<Tier, { text: string; bg: string; ring: string }> = {
-  BRONZE: { text: "text-tier-bronze", bg: "bg-tier-bronze", ring: "ring-tier-bronze" },
-  SILVER: { text: "text-tier-silver", bg: "bg-tier-silver", ring: "ring-tier-silver" },
-  GOLD: { text: "text-tier-gold", bg: "bg-tier-gold", ring: "ring-tier-gold" },
-  PLATINUM: { text: "text-tier-platinum", bg: "bg-tier-platinum", ring: "ring-tier-platinum" },
+export const TIER_CLASSES: Record<Tier, { text: string; bg: string; ring: string; badge: string }> = {
+  BRONZE: { text: "text-tier-bronze", bg: "bg-tier-bronze", ring: "ring-tier-bronze", badge: "bg-tier-bronze text-white" },
+  SILVER: { text: "text-tier-silver", bg: "bg-tier-silver", ring: "ring-tier-silver", badge: "bg-tier-silver text-slate-900" },
+  GOLD: { text: "text-tier-gold", bg: "bg-tier-gold", ring: "ring-tier-gold", badge: "bg-tier-gold text-slate-900" },
+  PLATINUM: { text: "text-tier-platinum", bg: "bg-tier-platinum", ring: "ring-tier-platinum", badge: "bg-tier-platinum text-white" },
 };
 
 export const TOPIC_LABEL: Record<BookingTopic, string> = {

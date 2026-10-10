@@ -174,8 +174,8 @@ export function VerifiedBadge() {
 export function TierBadge({ tier, size = "sm" }: { tier: Tier; size?: "sm" | "md" }) {
   const classes = TIER_CLASSES[tier];
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full border border-current/20 font-semibold ${classes.text} ${size === "sm" ? "px-2 py-0.5 text-[10px]" : "px-2.5 py-1 text-xs"}`}>
-      <span className={`size-1.5 rounded-full ${classes.bg}`} />
+    <span className={`inline-flex items-center gap-1.5 rounded-full font-semibold shadow-sm ${classes.badge} ${size === "sm" ? "px-2.5 py-0.5 text-[10px]" : "px-3 py-1 text-xs"}`}>
+      <span className="size-1.5 rounded-full bg-white/80" />
       {TIER_LABEL[tier]}
     </span>
   );
