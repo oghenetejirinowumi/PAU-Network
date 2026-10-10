@@ -9,14 +9,6 @@ import { Button, Card, Field, inputClass } from "@/components/ui";
 import { API_URL, errorMessage } from "@/lib/api";
 import { useSession } from "@/lib/session";
 
-// Seeded demo accounts (all fictional, password demo1234) so judges can switch roles in one click.
-const DEMO_ACCOUNTS = [
-  { label: "David · CS student", email: "david.olawale@pau-network.demo" },
-  { label: "Chinedu · Alumni, Paystack", email: "chinedu.okafor@pau-network.demo" },
-  { label: "Fatima · Mass Comm student", email: "fatima.bello@pau-network.demo" },
-  { label: "Aisha · Alumni, MTN", email: "aisha.abubakar@pau-network.demo" },
-];
-
 function LoginForm() {
   const { login } = useSession();
   const router = useRouter();
@@ -102,22 +94,6 @@ function LoginForm() {
               Create an account
             </Link>
           </p>
-        </Card>
-
-        <Card className="mt-4 p-4">
-          <p className="eyebrow mb-3">Demo accounts</p>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            {DEMO_ACCOUNTS.map((account) => (
-              <button
-                key={account.email}
-                onClick={() => signIn(account.email, "demo1234")}
-                disabled={isSubmitting}
-                className="rounded-control border border-line px-3 py-2 text-left text-xs font-medium hover:border-primary hover:bg-primary-soft"
-              >
-                {account.label}
-              </button>
-            ))}
-          </div>
         </Card>
       </div>
     </div>
