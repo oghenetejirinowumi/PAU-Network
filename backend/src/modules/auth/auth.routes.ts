@@ -48,12 +48,23 @@ const loginSchema = z.object({
   password: z.string().min(1),
 });
 
+const linkedInProfileUrlSchema = z
+  .string()
+  .trim()
+  .url()
+  .refine((value) => {
+    const url = new URL(value);
+    return (url.hostname === "linkedin.com" || url.hostname.endsWith(".linkedin.com")) && url.pathname.startsWith("/in/");
+  }, "Enter a LinkedIn profile URL that starts with https://www.linkedin.com/in/")
+  .optional();
+
 const linkedInRegisterSchema = z.discriminatedUnion("role", [
   z.object({
     role: z.literal("STUDENT"),
     departmentId: uuidSchema,
     graduationYear: z.number().int().min(currentYear).max(currentYear + 6),
     studentLevel: z.number().int().refine((level) => [100, 200, 300, 400, 500].includes(level)),
+    linkedinUrl: linkedInProfileUrlSchema,
   }),
   z.object({
     role: z.literal("ALUMNI"),
@@ -63,6 +74,7 @@ const linkedInRegisterSchema = z.discriminatedUnion("role", [
     company: z.string().trim().min(1).max(100),
     industry: z.string().trim().max(60).optional(),
     location: z.string().trim().max(60).optional(),
+    linkedinUrl: linkedInProfileUrlSchema,
   }),
 ]);
 
