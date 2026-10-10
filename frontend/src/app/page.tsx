@@ -39,7 +39,7 @@ export default function LandingPage() {
   const alumniOfTheMonth = awards.find((award) => award.type === "ALUMNI_OF_THE_MONTH");
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_10%_0%,var(--primary-soft),transparent_45%),radial-gradient(circle_at_100%_100%,var(--accent-soft),transparent_45%)]">
+    <div className="min-h-screen bg-background">
       <header className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-4 sm:py-5">
         <Logo />
         <div className="flex items-center gap-2">
@@ -50,44 +50,55 @@ export default function LandingPage() {
         </div>
       </header>
 
-      <section className="mx-auto max-w-6xl px-4 pb-12 pt-6 sm:pb-16 sm:pt-16">
-        <p className="eyebrow mb-4">Pan-Atlantic University · Alumni network</p>
-        <h1 className="text-display max-w-4xl font-extrabold tracking-tight text-primary text-balance">
-          Talk to PAU alumni who sat in <span className="text-muted/70">your</span> lectures.{" "}
-          <span className="inline-block rounded-card bg-accent px-3 text-on-accent">Book in a minute.</span>
-        </h1>
-        <p className="text-lead measure mt-6 text-muted">
-          PAU Network connects students with alumni from their own course for mentorship sessions, live Q&amp;A spaces and direct messages.
-        </p>
-        <div className="mt-8 flex flex-wrap gap-3">
-          <ButtonLink href="/register?role=STUDENT" className="h-12 flex-1 px-6 sm:flex-none">
-            Join as a student <ArrowRight className="size-4" />
-          </ButtonLink>
-          <ButtonLink href="/register?role=ALUMNI" variant="accent" className="h-12 flex-1 px-6 sm:flex-none">
-            Join as alumni
-          </ButtonLink>
+      <section className="relative isolate overflow-hidden bg-primary text-on-primary">
+        <div className="pointer-events-none absolute -right-12 top-1/2 -translate-y-1/2 text-white opacity-10" aria-hidden>
+          <Users className="size-96" strokeWidth={1} />
         </div>
-        <div className="mt-8 flex flex-wrap gap-2 font-mono text-xs">
-          {[
-            [alumniCount || "17", "alumni"],
-            [departments.length || "10", "departments"],
-            [spaces.length ? `${spaces.filter((space) => space.status === "LIVE").length} live` : "Live", "spaces now"],
-          ].map(([value, label]) => (
-            <span key={label} className="rounded-full border border-line bg-surface px-3 py-1.5 shadow-sm">
-              <strong className="text-primary">{value}</strong> <span className="text-muted">{label}</span>
-            </span>
-          ))}
+        <div className="relative mx-auto max-w-6xl px-4 pb-14 pt-10 sm:pb-20 sm:pt-20">
+          <p className="eyebrow mb-4 !text-accent">Pan-Atlantic University · Alumni network</p>
+          <h1 className="text-display max-w-4xl font-extrabold tracking-tight text-balance">
+            Talk to PAU alumni who sat in <span className="text-accent">your</span> lectures.{" "}
+            <span className="inline-block rounded-card bg-white px-3 text-primary">Book in a minute.</span>
+          </h1>
+          <p className="text-lead measure mt-6 text-white/80">
+            PAU Network connects students with alumni from their own course for mentorship sessions, live Q&amp;A spaces and direct messages.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <ButtonLink href="/register?role=STUDENT" className="h-12 flex-1 bg-white px-6 text-primary hover:bg-accent sm:flex-none">
+              Join as a student <ArrowRight className="size-4" />
+            </ButtonLink>
+            <ButtonLink href="/register?role=ALUMNI" variant="accent" className="h-12 flex-1 px-6 sm:flex-none">
+              Join as alumni
+            </ButtonLink>
+          </div>
+          <div className="mt-8 flex flex-wrap gap-2 font-mono text-xs">
+            {[
+              [alumniCount || "17", "alumni"],
+              [departments.length || "10", "departments"],
+              [spaces.length ? `${spaces.filter((space) => space.status === "LIVE").length} live` : "Live", "spaces now"],
+            ].map(([value, label]) => (
+              <span key={label} className="rounded-full border border-white/30 bg-white/10 px-3 py-1.5">
+                <strong className="text-white">{value}</strong> <span className="text-white/70">{label}</span>
+              </span>
+            ))}
+          </div>
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-6xl grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-4 px-4 pb-16">
-        {STEPS.map(({ icon: Icon, title, body }) => (
-          <div key={title} className="rounded-card border border-line bg-surface p-5">
-            <Icon className="mb-3 size-6 text-black" />
-            <p className="font-bold text-black">{title}</p>
-            <p className="mt-1 text-sm text-black">{body}</p>
-          </div>
-        ))}
+      <section className="mx-auto max-w-6xl px-4 py-16 sm:py-20">
+        <div className="mb-8 max-w-2xl">
+          <p className="eyebrow mb-2">How it works</p>
+          <h2 className="text-title font-extrabold text-primary">A network built around your next step.</h2>
+        </div>
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-4">
+          {STEPS.map(({ icon: Icon, title, body }, index) => (
+            <div key={title} className={`rounded-card border p-5 ${index % 2 === 1 ? "border-primary bg-primary text-on-primary" : "border-line bg-surface"}`}>
+              <Icon className={`mb-3 size-7 ${index % 2 === 1 ? "text-accent" : "text-primary"}`} />
+              <p className={`font-bold ${index % 2 === 1 ? "text-white" : "text-primary"}`}>{title}</p>
+              <p className={`mt-1 text-sm ${index % 2 === 1 ? "text-white/75" : "text-muted"}`}>{body}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
       <section className="mx-auto grid max-w-6xl gap-4 px-4 pb-20 lg:grid-cols-[1fr_1.4fr]">

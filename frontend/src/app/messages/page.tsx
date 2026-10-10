@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useState } from "react";
+import { Inbox, Send, UserRoundPlus } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
 import { useToast } from "@/components/Toast";
 import { Avatar, Button, Card, EmptyState, PageHeader, Spinner, StatusPill } from "@/components/ui";
@@ -51,10 +52,10 @@ function MessagesContent() {
     }
   };
 
-  const tabs: [Box, string][] = [
-    ["INBOX", "Inbox"],
-    ["REQUESTS", `Requests${requestCount ? ` (${requestCount})` : ""}`],
-    ["SENT", "Sent requests"],
+  const tabs: [Box, string, typeof Inbox][] = [
+    ["INBOX", "Inbox", Inbox],
+    ["REQUESTS", `Requests${requestCount ? ` (${requestCount})` : ""}`, UserRoundPlus],
+    ["SENT", "Sent requests", Send],
   ];
 
   return (
@@ -64,14 +65,15 @@ function MessagesContent() {
         title="Messages"
         description={user?.role === "STUDENT" ? "Send a message request from any alumni profile. Once they accept, you can chat freely." : "Students send message requests. Accept the ones you can help with."}
       />
-      <div className="mb-4 flex flex-wrap gap-2">
-        {tabs.map(([value, label]) => (
+      <div className="mb-4 grid grid-cols-3 overflow-hidden border border-primary bg-surface shadow-sm">
+        {tabs.map(([value, label, Icon]) => (
           <button
             key={value}
             onClick={() => setBox(value)}
             aria-pressed={box === value}
-            className={`rounded-full border px-3 py-1.5 text-xs font-semibold coarse:py-2.5 ${box === value ? "border-primary bg-primary text-on-primary" : "border-line bg-surface text-muted"}`}
+            className={`flex min-w-0 items-center justify-center gap-1.5 border-r border-primary px-2 py-3 text-xs font-semibold transition last:border-r-0 coarse:min-h-12 sm:gap-2 sm:px-4 ${box === value ? "bg-primary text-on-primary" : "bg-surface text-primary hover:bg-primary-soft"}`}
           >
+            <Icon className="size-4 shrink-0" aria-hidden />
             {label}
           </button>
         ))}

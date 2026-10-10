@@ -71,8 +71,26 @@ export const api = {
 
 export function errorMessage(error: unknown): string {
   if (error instanceof ApiError) {
+    if (error.status === 0 || error.code === "NETWORK_ERROR") {
+      return "We’re unable to connect right now. Please check your connection and try again.";
+    }
+    if (error.status === 401) {
+      return "Your session has expired. Please sign in again.";
+    }
+    if (error.status === 403) {
+      return "You don’t have permission to complete this action.";
+    }
+    if (error.status === 404) {
+      return "We couldn’t find what you were looking for.";
+    }
+    if (error.status >= 500) {
+      return "Something went wrong on our side. Please try again in a moment.";
+    }
     const firstDetail = error.details && Object.values(error.details).flat()[0];
     return firstDetail ? `${error.message}: ${firstDetail}` : error.message;
   }
-  return "Could not reach PAU Network. Is the backend running?";
+  if (error instanceof TypeError) {
+    return "We’re unable to connect right now. Please check your connection and try again.";
+  }
+  return "Something went wrong. Please try again.";
 }

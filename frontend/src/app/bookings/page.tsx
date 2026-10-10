@@ -74,20 +74,22 @@ function BookingRow({ booking, onChange }: { booking: Booking; onChange: (bookin
   };
 
   return (
-    <Card className="p-4">
+    <Card className="relative overflow-hidden border-primary/20 bg-surface p-0 shadow-sm transition hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md">
+      <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-primary via-accent to-primary-hover" aria-hidden />
+      <div className="p-4 pl-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <UserLine user={other} subtitle={isAlumniView ? `${studentLevelLabel(booking.student.studentLevel)} ${booking.student.department.name}` : undefined} />
         <StatusPill status={booking.status} />
       </div>
-      <div className="mt-3 rounded-control bg-surface-muted p-3 text-sm">
-        <p className="mb-1 flex flex-wrap items-center gap-2 text-xs font-semibold text-muted">
-          <span className="rounded-full bg-accent-soft px-2 py-0.5 text-on-accent">{TOPIC_LABEL[booking.topic]}</span>
+      <div className="mt-3 rounded-control border border-primary/10 bg-gradient-to-br from-primary-soft via-surface-muted to-accent-soft p-3 text-sm">
+        <p className="mb-1 flex flex-wrap items-center gap-2 text-xs font-semibold text-primary">
+          <span className="rounded-full bg-primary px-2 py-0.5 text-on-primary">{TOPIC_LABEL[booking.topic]}</span>
           {formatSlot(booking.slot.startsAt)}
         </p>
-        <p>{booking.message}</p>
+        <p className="text-ink">{booking.message}</p>
         {booking.declineReason && <p className="mt-2 text-xs text-muted">Note: {booking.declineReason}</p>}
         {booking.rating && (
-          <p className="mt-2 text-xs">
+          <p className="mt-2 text-xs text-amber-600">
             {"⭐".repeat(booking.rating)} {booking.feedback && <span className="text-muted">“{booking.feedback}”</span>}
           </p>
         )}
@@ -145,6 +147,7 @@ function BookingRow({ booking, onChange }: { booking: Booking; onChange: (bookin
           }}
         />
       )}
+      </div>
     </Card>
   );
 }

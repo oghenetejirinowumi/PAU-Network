@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
-import { GraduationCap, Briefcase } from "lucide-react";
-import { Logo } from "@/components/AppShell";
+import { ArrowLeft, Briefcase, GraduationCap, MessageCircle, Users } from "lucide-react";
 import { Button, Card, Field, inputClass } from "@/components/ui";
 import { API_URL, api, errorMessage } from "@/lib/api";
+import { INDUSTRIES } from "@/lib/constants";
 import { useSession } from "@/lib/session";
 import type { Department } from "@/lib/types";
 
@@ -89,12 +90,29 @@ function RegisterForm() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 py-10">
-      <div className="w-full max-w-lg">
+    <div className="relative isolate flex min-h-dvh items-center justify-center overflow-hidden bg-primary px-4 py-10">
+      <div className="pointer-events-none absolute -left-12 top-12 text-white opacity-10" aria-hidden>
+        <GraduationCap className="size-48 sm:size-64" strokeWidth={1} />
+      </div>
+      <div className="pointer-events-none absolute -right-10 top-1/4 text-white opacity-10" aria-hidden>
+        <Users className="size-56 sm:size-80" strokeWidth={1} />
+      </div>
+      <div className="pointer-events-none absolute bottom-0 left-1/4 text-white opacity-10" aria-hidden>
+        <MessageCircle className="size-48 sm:size-64" strokeWidth={1} />
+      </div>
+      <button
+        type="button"
+        onClick={() => router.back()}
+        className="tap-target absolute left-3 top-3 z-10 inline-flex items-center gap-1 rounded-control px-2 text-sm font-semibold text-white hover:bg-white/10 sm:left-5 sm:top-5"
+      >
+        <ArrowLeft className="size-4" aria-hidden />
+        Back
+      </button>
+      <div className="relative z-10 w-full max-w-lg">
         <div className="mb-6 flex justify-center">
-          <Logo />
+          <Image src="/PAU_NETWORK_LOGO_WHITE.png" alt="PAU Network" width={190} height={48} priority className="h-auto w-44 sm:w-48" />
         </div>
-        <Card className="p-6">
+        <Card className="p-6 shadow-[0_0_45px_rgba(255,255,255,0.22)]">
           <h1 className="text-xl font-bold text-primary">Join PAU Network</h1>
           <p className="mb-5 text-sm text-muted">
             {linkedInRegistration ? "LinkedIn confirmed your identity. Complete your PAU details to finish joining." : "Students find mentors. Alumni give back on their own schedule."}
@@ -114,7 +132,7 @@ function RegisterForm() {
           <div className="mb-5 grid grid-cols-2 gap-2">
             {[
               { value: "STUDENT" as const, label: "Student", icon: GraduationCap },
-              { value: "ALUMNI" as const, label: "Alumnus", icon: Briefcase },
+              { value: "ALUMNI" as const, label: "Alumnas", icon: Briefcase },
             ].map(({ value, label, icon: Icon }) => (
               <button
                 key={value}
@@ -183,7 +201,7 @@ function RegisterForm() {
                     <input className={inputClass} value={form.company} onChange={update("company")} required />
                   </Field>
                   <Field label="Industry">
-                    <input className={inputClass} placeholder="e.g. Fintech" value={form.industry} onChange={update("industry")} />
+                    <input className={inputClass} list="industry-options" placeholder="e.g. Finance" value={form.industry} onChange={update("industry")} />
                   </Field>
                   <Field label="City">
                     <input className={inputClass} value={form.location} onChange={update("location")} />
@@ -191,6 +209,12 @@ function RegisterForm() {
                 </div>
               </>
             )}
+
+            <datalist id="industry-options">
+              {INDUSTRIES.map((industry) => (
+                <option key={industry} value={industry} />
+              ))}
+            </datalist>
 
             {error && <p className="rounded-control bg-danger-soft px-3 py-2 text-sm text-danger">{error}</p>}
             <Button type="submit" className="w-full" isLoading={isSubmitting}>

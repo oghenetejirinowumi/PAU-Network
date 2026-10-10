@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
-import { Logo } from "@/components/AppShell";
+import { ArrowLeft, GraduationCap, MessageCircle, Users } from "lucide-react";
 import { Button, Card, Field, inputClass } from "@/components/ui";
 import { API_URL, errorMessage } from "@/lib/api";
 import { useSession } from "@/lib/session";
@@ -40,12 +41,29 @@ function LoginForm() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4 py-10">
-      <div className="w-full max-w-md">
+    <div className="relative isolate flex min-h-dvh items-center justify-center overflow-hidden bg-primary px-4 py-10">
+      <div className="pointer-events-none absolute -left-12 top-12 text-white opacity-10" aria-hidden>
+        <GraduationCap className="size-48 sm:size-64" strokeWidth={1} />
+      </div>
+      <div className="pointer-events-none absolute -right-10 top-1/4 text-white opacity-10" aria-hidden>
+        <Users className="size-56 sm:size-80" strokeWidth={1} />
+      </div>
+      <div className="pointer-events-none absolute bottom-0 left-1/4 text-white opacity-10" aria-hidden>
+        <MessageCircle className="size-48 sm:size-64" strokeWidth={1} />
+      </div>
+      <button
+        type="button"
+        onClick={() => router.back()}
+        className="tap-target absolute left-3 top-3 z-10 inline-flex items-center gap-1 rounded-control px-2 text-sm font-semibold text-white hover:bg-white/10 sm:left-5 sm:top-5"
+      >
+        <ArrowLeft className="size-4" aria-hidden />
+        Back
+      </button>
+      <div className="relative z-10 w-full max-w-md">
         <div className="mb-6 flex justify-center">
-          <Logo />
+          <Image src="/PAU_NETWORK_LOGO_WHITE.png" alt="PAU Network" width={190} height={48} priority className="h-auto w-44 sm:w-48" />
         </div>
-        <Card className="p-6">
+        <Card className="p-6 shadow-[0_0_45px_rgba(255,255,255,0.22)]">
           <h1 className="text-xl font-bold text-primary">Welcome back</h1>
           <p className="mb-5 text-sm text-muted">Log in to connect with the PAU community.</p>
           {linkedInError && (

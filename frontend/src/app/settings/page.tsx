@@ -8,6 +8,7 @@ import { AppShell } from "@/components/AppShell";
 import { useToast } from "@/components/Toast";
 import { Avatar, Button, Card, Field, inputClass, Modal, PageHeader, Spinner } from "@/components/ui";
 import { api, errorMessage } from "@/lib/api";
+import { INDUSTRIES } from "@/lib/constants";
 import { EMPLOYMENT_TYPE_LABEL, formatTenure } from "@/lib/format";
 import { AVATAR_SIZE, BANNER_SIZE, resizeImage } from "@/lib/image";
 import { useSession } from "@/lib/session";
@@ -316,13 +317,18 @@ function SettingsContent() {
               </Field>
               {user.role === "ALUMNI" && (
                 <Field label="Industry">
-                  <input className={inputClass} value={form.industry} onChange={(event) => setForm({ ...form, industry: event.target.value })} />
+                  <input className={inputClass} list="industry-options" value={form.industry} onChange={(event) => setForm({ ...form, industry: event.target.value })} />
                 </Field>
               )}
               <Field label="LinkedIn URL">
                 <input className={inputClass} type="url" placeholder="https://www.linkedin.com/in/…" value={form.linkedinUrl} onChange={(event) => setForm({ ...form, linkedinUrl: event.target.value })} />
               </Field>
             </div>
+            <datalist id="industry-options">
+              {INDUSTRIES.map((industry) => (
+                <option key={industry} value={industry} />
+              ))}
+            </datalist>
             <Field label="Skills" hint="Press Enter to add. Up to 30.">
               <div className="flex flex-wrap items-center gap-2 rounded-control border border-line p-2">
                 {skills.map((skill) => (

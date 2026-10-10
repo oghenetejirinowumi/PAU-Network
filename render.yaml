@@ -1,0 +1,22 @@
+# Render blueprint for the PAU Network API (backend/). The frontend deploys to Vercel.
+services:
+  - type: web
+    name: pau-network-api
+    runtime: node
+    rootDir: backend
+    plan: free
+    # The free plan has no pre-deploy step, so migrations run during the build.
+    buildCommand: npm ci && npx prisma generate && npx prisma migrate deploy
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL      # Neon pooled connection (-pooler host)
+        sync: false
+      - key: DIRECT_URL        # Neon direct connection (migrations)
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGINS      # e.g. https://pau-network.vercel.app
+        sync: false
+      - key: NODE_ENV
+        value: production

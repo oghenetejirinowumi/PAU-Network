@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Bell, CalendarClock, Home, LogOut, MessageCircle, Radio, Settings, Trophy, User as UserIcon, Users, Award, CalendarPlus } from "lucide-react";
@@ -20,7 +21,15 @@ const NAV_ITEMS = [
   { href: "/awards", label: "Awards", icon: Trophy },
 ];
 
-export function Logo() {
+export function Logo({ light = false }: { light?: boolean }) {
+  if (light) {
+    return (
+      <Link href="/feed" className="flex items-center">
+        <Image src="/PAU_NETWORK_LOGO_WHITE.png" alt="PAU Network" width={168} height={42} priority className="h-auto w-36" />
+      </Link>
+    );
+  }
+
   return (
     <Link href="/feed" className="flex items-center gap-2">
       <span className="flex size-8 items-center justify-center rounded-control bg-primary text-sm font-black text-on-primary">P</span>
@@ -88,7 +97,7 @@ function NotificationBell() {
     <div className="relative" ref={panelRef}>
       <button
         onClick={() => setIsOpen((value) => !value)}
-        className="tap-target relative rounded-full p-2 text-muted hover:bg-surface-muted hover:text-ink"
+        className="tap-target relative rounded-full p-2 text-white/80 hover:bg-white/10 hover:text-white"
         aria-label={unreadCount ? `Notifications, ${unreadCount} unread` : "Notifications"}
         aria-expanded={isOpen}
         aria-haspopup="true"
@@ -209,9 +218,9 @@ export function AppShell({ children, wide }: { children: React.ReactNode; wide?:
 
   return (
     <div className="min-h-dvh pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-0">
-      <header className="sticky top-0 z-30 border-b border-line bg-surface/90 backdrop-blur">
+      <header className="sticky top-0 z-30 border-b border-white/15 bg-primary/95 text-on-primary shadow-sm backdrop-blur">
         <div className="mx-auto flex h-14 max-w-6xl items-center gap-2 px-3 sm:gap-4 sm:px-4">
-          <Logo />
+          <Logo light />
           {/* Tablet (768-1023px): icons only, so six items fit. Laptop and up: icon + label. */}
           <nav aria-label="Main" className="ml-2 hidden flex-1 items-center gap-0.5 md:flex lg:ml-4 lg:gap-1">
             {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
@@ -222,7 +231,7 @@ export function AppShell({ children, wide }: { children: React.ReactNode; wide?:
                   href={href}
                   title={label}
                   aria-current={isActive ? "page" : undefined}
-                  className={`flex items-center gap-1.5 rounded-control px-2.5 py-2 text-sm font-medium transition lg:px-3 ${isActive ? "bg-primary-soft text-primary" : "text-muted hover:text-ink"}`}
+                  className={`flex items-center gap-1.5 rounded-control px-2.5 py-2 text-sm font-medium transition lg:px-3 ${isActive ? "bg-white/15 text-white" : "text-white/75 hover:bg-white/10 hover:text-white"}`}
                 >
                   <Icon className="size-5 lg:size-4" aria-hidden />
                   <span className="sr-only lg:not-sr-only">{label}</span>
