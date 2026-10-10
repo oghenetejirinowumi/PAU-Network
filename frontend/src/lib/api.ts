@@ -1,5 +1,5 @@
 // Demo fallback: the hackathon backend runs through a public tunnel. Set NEXT_PUBLIC_API_URL to override.
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://ancient-octopus-25.loca.lt/api/v1" : "http://localhost:4000/api/v1");
+export const API_URL = process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://protein-surgical-engineer-consumer.trycloudflare.com/api/v1" : "http://localhost:4000/api/v1");
 export const SOCKET_URL = API_URL.replace(/\/api\/v1\/?$/, "");
 
 const TOKEN_KEY = "pau-network.accessToken";
