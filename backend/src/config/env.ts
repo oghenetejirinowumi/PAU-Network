@@ -16,6 +16,9 @@ const envSchema = z.object({
   LINKEDIN_REDIRECT_URI: z.string().url().default("http://localhost:4000/api/v1/auth/linkedin/callback"),
   RESEND_API_KEY: z.string().min(1).optional(),
   EMAIL_FROM: z.string().email().optional(),
+  LIVEKIT_URL: z.string().url().optional(),
+  LIVEKIT_API_KEY: z.string().min(1).optional(),
+  LIVEKIT_API_SECRET: z.string().min(1).optional(),
 });
 
 export const env = envSchema.parse(process.env);

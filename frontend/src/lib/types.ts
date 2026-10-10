@@ -209,7 +209,6 @@ export interface Space {
 }
 
 export interface SpaceDetail extends Space {
-  meetingUrl: string | null;
   participants: SpaceParticipant[];
   questions: SpaceQuestion[];
   viewer: { role: SpaceParticipantRole | null; isRegistered: boolean; isInRoom: boolean; isHandRaised: boolean };

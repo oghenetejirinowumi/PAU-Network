@@ -14,6 +14,10 @@ Set `LINKEDIN_CLIENT_ID` and `LINKEDIN_CLIENT_SECRET` in `backend/.env`. The def
 
 Apply the new LinkedIn identity column before running the updated backend with `cd backend && npm run db:deploy`.
 
+## Space audio rooms
+
+Spaces use LiveKit Cloud for real-time audio. Create a LiveKit Cloud project and set `LIVEKIT_URL`, `LIVEKIT_API_KEY` and `LIVEKIT_API_SECRET` in `backend/.env` (the URL starts with `wss://`). Restart the backend after configuration. The backend issues short-lived room tokens only to participants who have joined a live space; hosts and promoted speakers may publish microphone audio, while listeners may only subscribe. Tokens do not permit video or data publishing. No Jitsi account or moderator login is required.
+
 ## Space reminder emails
 
 Users who click **Remind me** are emailed once 1 hour before and again 15 minutes before a scheduled space starts. Configure `RESEND_API_KEY` and `EMAIL_FROM` in `backend/.env`; the sender address must be verified in Resend. Apply pending migrations with `cd backend && npm run db:deploy` and restart the backend. Reminder emails link to the space in the frontend. If the backend is unavailable during a reminder window, pending emails are sent when it resumes, while the space is still scheduled to start.
