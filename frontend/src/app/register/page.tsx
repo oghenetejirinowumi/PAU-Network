@@ -33,6 +33,7 @@ function RegisterForm() {
     company: "",
     industry: "",
     location: "Lagos",
+    linkedinUrl: "",
   });
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -64,9 +65,11 @@ function RegisterForm() {
       departmentId: form.departmentId,
       graduationYear: Number(form.graduationYear),
     };
-    const studentInput = { ...common, studentLevel: Number(form.studentLevel) };
+    const linkedInProfile = linkedInRegistration ? { linkedinUrl: form.linkedinUrl || undefined } : {};
+    const studentInput = { ...common, ...linkedInProfile, studentLevel: Number(form.studentLevel) };
     const alumniInput = {
       ...common,
+      ...linkedInProfile,
       jobTitle: form.jobTitle,
       company: form.company,
       industry: form.industry || undefined,
@@ -157,6 +160,19 @@ function RegisterForm() {
             <Field label="Email">
               <input className={inputClass} type="email" value={form.email} onChange={update("email")} required readOnly={linkedInRegistration} />
             </Field>
+            {linkedInRegistration && (
+              <Field label="LinkedIn profile URL (optional)" hint="LinkedIn sign-in doesn’t share your public profile link. Paste it here, or add it later in Settings.">
+                <input
+                  className={inputClass}
+                  type="url"
+                  inputMode="url"
+                  autoComplete="url"
+                  placeholder="https://www.linkedin.com/in/your-profile"
+                  value={form.linkedinUrl}
+                  onChange={update("linkedinUrl")}
+                />
+              </Field>
+            )}
             {!linkedInRegistration && (
               <Field label="Password" hint="At least 8 characters">
                 <input className={inputClass} type="password" minLength={8} value={form.password} onChange={update("password")} required />

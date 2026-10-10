@@ -1,8 +1,9 @@
 import { randomBytes } from "node:crypto";
 import { Router } from "express";
+import { AccessToken, TrackSource } from "livekit-server-sdk";
 import { z } from "zod";
 import type { Prisma } from "../../generated/prisma/client.js";
-import { badRequest, conflict, forbidden, notFound } from "../../lib/http-error.js";
+import { badRequest, conflict, forbidden, notFound, serviceUnavailable } from "../../lib/http-error.js";
 import { prisma } from "../../lib/prisma.js";
 import { userSummarySelect } from "../../lib/user-select.js";
 import { parse, uuidSchema } from "../../lib/validation.js";
@@ -10,10 +11,10 @@ import { authenticate, authenticateOptional, currentUser, requireRole } from "..
 import { emitToSpace } from "../../realtime/socket.js";
 import { awardPoints } from "../gamification/gamification.service.js";
 import { notify } from "../notifications/notifications.service.js";
+import { env } from "../../config/env.js";
 
 /**
- * Spaces are live rooms hosted by alumni (like LinkedIn Audio Events / X Spaces).
- * Audio and video run in a Jitsi room (meetingUrl). Everything else (who is in the room,
+ * Spaces are live audio rooms hosted by alumni (like X Spaces). Everything else (who is in the room,
  * raised hands, speakers, questions and upvotes) is stored here and pushed over Socket.IO.
  *
  * Lifecycle: SCHEDULED → LIVE → ENDED, or SCHEDULED → CANCELLED.
@@ -27,8 +28,6 @@ const spaceListInclude = {
 } satisfies Prisma.SpaceInclude;
 
 const participantInclude = { user: { select: userSummarySelect } } satisfies Prisma.SpaceParticipantInclude;
-
-const meetingUrlFor = (roomName: string) => `https://meet.jit.si/${roomName}`;
 
 async function findSpace(spaceId: string) {
   const space = await prisma.space.findUnique({ where: { id: spaceId } });
@@ -147,8 +146,6 @@ spacesRouter.get("/:spaceId", authenticateOptional, async (req, res) => {
     data: {
       ...rest,
       participantCount: _count.participants,
-      // The Jitsi link is only revealed to people who have joined or are hosting.
-      meetingUrl: viewerParticipant?.joinedAt || viewerParticipant?.role === "HOST" ? meetingUrlFor(space.roomName) : null,
       participants: participants.filter((participant) => (space.status === "LIVE" ? participant.joinedAt && !participant.leftAt : true)),
       questions: questions.map((question) => ({ ...question, hasViewerUpvoted: voted.has(question.id) })),
       viewer: viewerParticipant
@@ -172,7 +169,7 @@ spacesRouter.post("/:spaceId/start", authenticate, async (req, res) => {
   for (const participant of registered) {
     await notify({ userId: participant.userId, type: "SPACE_STARTED", title: `🔴 Live now: ${space.title}`, linkUrl: `/spaces/${space.id}` });
   }
-  emitToSpace(space.id, "space:started", { spaceId: space.id, startedAt: now, meetingUrl: meetingUrlFor(space.roomName) });
+  emitToSpace(space.id, "space:started", { spaceId: space.id, startedAt: now });
   res.json({ data: updated });
 });
 
@@ -243,7 +240,39 @@ spacesRouter.post("/:spaceId/join", authenticate, async (req, res) => {
     include: participantInclude,
   });
   emitToSpace(space.id, "space:participant-joined", participant);
-  res.json({ data: { ...participant, meetingUrl: meetingUrlFor(space.roomName) } });
+  res.json({ data: participant });
+});
+
+/** GET /spaces/:spaceId/audio-token — grants room access only to joined participants. */
+spacesRouter.get("/:spaceId/audio-token", authenticate, async (req, res) => {
+  const me = currentUser(req);
+  const spaceId = parse(uuidSchema, req.params.spaceId);
+  const [space, participant, profile] = await Promise.all([
+    findSpace(spaceId),
+    findJoinedParticipant(spaceId, me.id),
+    prisma.user.findUniqueOrThrow({ where: { id: me.id }, select: { firstName: true, lastName: true } }),
+  ]);
+  if (space.status !== "LIVE") throw conflict("Audio is only available while the space is live");
+  if (!env.LIVEKIT_URL || !env.LIVEKIT_API_KEY || !env.LIVEKIT_API_SECRET) {
+    throw serviceUnavailable("Spaces audio is not configured. Set LIVEKIT_URL, LIVEKIT_API_KEY and LIVEKIT_API_SECRET.");
+  }
+
+  const canSpeak = participant.role !== "LISTENER";
+  const token = new AccessToken(env.LIVEKIT_API_KEY, env.LIVEKIT_API_SECRET, {
+    identity: me.id,
+    name: `${profile.firstName} ${profile.lastName}`,
+    ttl: "1h",
+  });
+  token.addGrant({
+    roomJoin: true,
+    room: space.roomName,
+    canSubscribe: true,
+    canPublish: canSpeak,
+    canPublishSources: canSpeak ? [TrackSource.MICROPHONE] : [],
+    canPublishData: false,
+  });
+
+  res.json({ data: { serverUrl: env.LIVEKIT_URL, token: await token.toJwt() } });
 });
 
 /** POST /spaces/:spaceId/leave */

@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { ArrowLeft, ArrowUp, Check, Hand, LogOut, Mic, MicOff, Radio, Send, X } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { SpaceAudioRoom } from "@/components/SpaceAudioRoom";
 import { useToast } from "@/components/Toast";
 import { Avatar, Button, Card, Spinner, StatusPill } from "@/components/ui";
 import { api, errorMessage } from "@/lib/api";
@@ -187,11 +188,9 @@ export default function SpaceRoomPage() {
               )}
               {space.viewer.isInRoom && isLive && (
                 <>
-                  {space.meetingUrl && (
-                    <Button variant="primary" onClick={() => setIsMediaOpen((value) => !value)}>
-                      <Mic className="size-4" /> {isMediaOpen ? "Hide audio" : "Open audio & video"}
-                    </Button>
-                  )}
+                  <Button variant="primary" onClick={() => setIsMediaOpen((value) => !value)}>
+                    <Mic className="size-4" /> {isMediaOpen ? "Close audio" : "Join audio"}
+                  </Button>
                   {space.viewer.role === "LISTENER" && (
                     <Button variant={space.viewer.isHandRaised ? "accent" : "secondary"} onClick={() => call(() => (space.viewer.isHandRaised ? api.delete(`/spaces/${space.id}/hand`) : api.put(`/spaces/${space.id}/hand`)), space.viewer.isHandRaised ? undefined : "Hand raised ✋ The host can invite you to speak.")}>
                       <Hand className="size-4" /> {space.viewer.isHandRaised ? "Lower hand" : "Raise hand"}
@@ -206,12 +205,11 @@ export default function SpaceRoomPage() {
               )}
             </div>
 
-            {isMediaOpen && space.meetingUrl && (
-              <iframe
-                title="Space audio and video"
-                src={`${space.meetingUrl}#userInfo.displayName="${encodeURIComponent(fullName(user))}"&config.prejoinPageEnabled=false&config.startWithVideoMuted=true&config.startWithAudioMuted=${space.viewer.role === "LISTENER"}`}
-                allow="camera; microphone; display-capture; autoplay"
-                className="h-[60dvh] w-full border-t border-line sm:aspect-video sm:h-auto sm:max-h-[75dvh]"
+            {isMediaOpen && (
+              <SpaceAudioRoom
+                key={`${space.id}-${space.viewer.role}`}
+                spaceId={space.id}
+                canPublish={space.viewer.role === "HOST" || space.viewer.role === "SPEAKER"}
               />
             )}
           </Card>
