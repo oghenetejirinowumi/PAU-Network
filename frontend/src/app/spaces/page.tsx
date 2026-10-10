@@ -101,7 +101,7 @@ function SpaceCard({ space, onChange }: { space: Space; onChange: () => void }) 
     try {
       if (space.isRegistered) await api.delete(`/spaces/${space.id}/registration`);
       else await api.put(`/spaces/${space.id}/registration`);
-      toast(space.isRegistered ? "Reminder removed" : "We'll notify you when it goes live 🔔");
+      toast(space.isRegistered ? "Email reminders removed" : "We'll email you 1 hour and 15 minutes before it starts 🔔");
       onChange();
     } catch (caught) {
       toast(errorMessage(caught), "error");

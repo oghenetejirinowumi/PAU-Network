@@ -45,6 +45,7 @@ export async function request<T, M = undefined>(
   const token = getToken();
   const response = await fetch(url, {
     method: options.method ?? "GET",
+    credentials: "include",
     headers: {
       ...(options.body !== undefined && { "Content-Type": "application/json" }),
       ...(token && { Authorization: `Bearer ${token}` }),

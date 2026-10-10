@@ -181,7 +181,7 @@ export default function SpaceRoomPage() {
                 </Button>
               )}
               {!isHost && space.status === "SCHEDULED" && (
-                <Button variant={space.viewer.isRegistered ? "secondary" : "primary"} onClick={() => call(() => (space.viewer.isRegistered ? api.delete(`/spaces/${space.id}/registration`) : api.put(`/spaces/${space.id}/registration`)), space.viewer.isRegistered ? "Reminder removed" : "We'll notify you when it starts 🔔")}>
+                <Button variant={space.viewer.isRegistered ? "secondary" : "primary"} onClick={() => call(() => (space.viewer.isRegistered ? api.delete(`/spaces/${space.id}/registration`) : api.put(`/spaces/${space.id}/registration`)), space.viewer.isRegistered ? "Email reminders removed" : "We'll email you 1 hour and 15 minutes before it starts 🔔")}>
                   {space.viewer.isRegistered ? "Reminder set ✓" : "Remind me"}
                 </Button>
               )}

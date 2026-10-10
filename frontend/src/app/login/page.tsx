@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { Logo } from "@/components/AppShell";
 import { Button, Card, Field, inputClass } from "@/components/ui";
-import { errorMessage } from "@/lib/api";
+import { API_URL, errorMessage } from "@/lib/api";
 import { useSession } from "@/lib/session";
 
 // Seeded demo accounts (all fictional, password demo1234) so judges can switch roles in one click.
@@ -19,7 +19,9 @@ const DEMO_ACCOUNTS = [
 function LoginForm() {
   const { login } = useSession();
   const router = useRouter();
-  const next = useSearchParams().get("next") ?? "/feed";
+  const searchParams = useSearchParams();
+  const next = searchParams.get("next") ?? "/feed";
+  const linkedInError = searchParams.get("linkedinError");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -46,6 +48,18 @@ function LoginForm() {
         <Card className="p-6">
           <h1 className="text-xl font-bold text-primary">Welcome back</h1>
           <p className="mb-5 text-sm text-muted">Log in to connect with the PAU community.</p>
+          {linkedInError && (
+            <p className="mb-4 rounded-control bg-danger-soft px-3 py-2 text-sm text-danger">
+              LinkedIn sign-in was cancelled. You can try again or log in with your email.
+            </p>
+          )}
+          <a
+            href={`${API_URL}/auth/linkedin`}
+            className="mb-4 flex h-10 items-center justify-center rounded-control border border-line bg-surface text-sm font-semibold text-ink transition hover:bg-surface-muted"
+          >
+            Continue with LinkedIn
+          </a>
+          <p className="mb-4 text-center text-xs text-muted">or log in with email</p>
           <form
             className="space-y-4"
             onSubmit={(event) => {

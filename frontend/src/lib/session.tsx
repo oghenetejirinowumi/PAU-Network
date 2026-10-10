@@ -11,6 +11,8 @@ interface SessionValue {
   socket: Socket | null;
   login: (email: string, password: string) => Promise<User>;
   register: (input: Record<string, unknown>) => Promise<User>;
+  registerLinkedIn: (input: Record<string, unknown>) => Promise<User>;
+  completeLinkedInLogin: () => Promise<User>;
   logout: () => void;
   refreshUser: () => Promise<void>;
 }
@@ -45,6 +47,11 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     setUser(data.user);
   }, []);
 
+  const completeLinkedInLogin = useCallback(
+    async () => startSession((await api.get<{ user: User; accessToken: string }>("/auth/linkedin/session")).data),
+    [startSession],
+  );
+
   useEffect(() => {
     if (!getToken()) {
       setIsLoading(false);
@@ -68,6 +75,8 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       refreshUser,
       login: async (email, password) => startSession((await api.post<{ user: User; accessToken: string }>("/auth/login", { email, password })).data),
       register: async (input) => startSession((await api.post<{ user: User; accessToken: string }>("/auth/register", input)).data),
+      registerLinkedIn: async (input) => startSession((await api.post<{ user: User; accessToken: string }>("/auth/linkedin/register", input)).data),
+      completeLinkedInLogin,
       logout: () => {
         setToken(null);
         socketRef.current?.disconnect();
@@ -76,7 +85,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
         setUser(null);
       },
     }),
-    [user, isLoading, socket, refreshUser, startSession],
+    [user, isLoading, socket, refreshUser, startSession, completeLinkedInLogin],
   );
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
