@@ -5,6 +5,7 @@ export type ErrorCode =
   | "FORBIDDEN"
   | "NOT_FOUND"
   | "CONFLICT"
+  | "SERVICE_UNAVAILABLE"
   | "INTERNAL_ERROR";
 
 const statusByCode: Record<ErrorCode, number> = {
@@ -14,6 +15,7 @@ const statusByCode: Record<ErrorCode, number> = {
   FORBIDDEN: 403,
   NOT_FOUND: 404,
   CONFLICT: 409,
+  SERVICE_UNAVAILABLE: 503,
   INTERNAL_ERROR: 500,
 };
 
@@ -36,3 +38,4 @@ export const unauthorized = (message = "Authentication required") => new HttpErr
 export const forbidden = (message = "You do not have permission to do this") => new HttpError("FORBIDDEN", message);
 export const notFound = (resource: string) => new HttpError("NOT_FOUND", `${resource} not found`);
 export const conflict = (message: string) => new HttpError("CONFLICT", message);
+export const serviceUnavailable = (message: string) => new HttpError("SERVICE_UNAVAILABLE", message);

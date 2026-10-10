@@ -367,7 +367,7 @@ export default function ProfilePage() {
                 <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,4.5rem),1fr))] gap-2">
                   {achievements.badges.map((badge) => (
                     <div key={badge.id} title={`${badge.name}: ${badge.description}`} className="flex flex-col items-center rounded-control bg-surface-muted p-2 text-center">
-                      <span className="text-2xl">{badge.icon}</span>
+                      <span className="text-2xl leading-none" aria-hidden="true">{badge.icon}</span>
                       <span className="mt-1 line-clamp-2 text-[10px] leading-tight text-muted">{badge.name}</span>
                     </div>
                   ))}

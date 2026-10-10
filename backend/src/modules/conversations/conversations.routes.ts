@@ -7,7 +7,7 @@ import { userSummarySelect } from "../../lib/user-select.js";
 import { parse, uuidSchema } from "../../lib/validation.js";
 import { authenticate, currentUser, type AuthUser } from "../../middleware/authenticate.js";
 import { emitToUser } from "../../realtime/socket.js";
-import { awardPoints } from "../gamification/gamification.service.js";
+import { awardPoints, evaluateBadges } from "../gamification/gamification.service.js";
 import { notify } from "../notifications/notifications.service.js";
 
 /**
@@ -122,6 +122,7 @@ conversationsRouter.post("/:conversationId/accept", async (req, res) => {
     include: conversationInclude,
   });
   await awardPoints(me.id, "MESSAGE_REQUEST_ACCEPTED", { referenceId: conversation.id });
+  await evaluateBadges(conversation.requesterId);
   await notify({
     userId: conversation.requesterId,
     type: "MESSAGE_REQUEST_ACCEPTED",

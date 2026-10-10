@@ -81,7 +81,7 @@ function RegisterForm() {
             : { ...common, email: form.email, password: form.password, firstName: form.firstName, lastName: form.lastName, jobTitle: form.jobTitle, company: form.company, industry: form.industry || undefined, location: form.location || undefined },
         );
       }
-      router.replace("/settings?welcome=1");
+      router.replace(role === "ALUMNI" ? "/onboarding/alumni" : "/settings?welcome=1");
     } catch (caught) {
       setError(errorMessage(caught));
       setIsSubmitting(false);

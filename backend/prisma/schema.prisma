@@ -185,6 +185,7 @@ model Department {
 model User {
   id             String    @id @default(uuid()) @db.Uuid
   email          String    @unique
+  linkedinId     String?   @unique @map("linkedin_id")
   passwordHash   String    @map("password_hash")
   role           UserRole
   firstName      String    @map("first_name")
@@ -492,7 +493,11 @@ model SpaceParticipant {
   isHandRaised Boolean              @default(false) @map("is_hand_raised")
   handRaisedAt DateTime?            @map("hand_raised_at")
   registeredAt DateTime             @default(now()) @map("registered_at")
-  joinedAt     DateTime?            @map("joined_at")
+  reminderOneHourSentAt DateTime?    @map("reminder_one_hour_sent_at")
+  reminderOneHourClaimedAt DateTime? @map("reminder_one_hour_claimed_at")
+  reminder15MinSentAt DateTime?      @map("reminder_15_min_sent_at")
+  reminder15MinClaimedAt DateTime?   @map("reminder_15_min_claimed_at")
+  joinedAt     DateTime?             @map("joined_at")
   leftAt       DateTime?            @map("left_at")
 
   space Space @relation(fields: [spaceId], references: [id], onDelete: Cascade)

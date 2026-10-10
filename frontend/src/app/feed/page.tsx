@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { Radio, Trophy } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { TIER_EMOJI } from "@/components/AchievementEmojis";
 import { PostCard, PostComposer } from "@/components/PostCard";
 import { Avatar, Button, Card, EmptyState, Spinner, StatusPill, TierBadge, UserLine } from "@/components/ui";
 import { api } from "@/lib/api";
@@ -48,14 +49,14 @@ function ProfileSummary() {
           </div>
           {achievements && (
             <p className="mt-1 text-[11px] text-muted">
-              {achievements.nextTier ? `${achievements.nextTier.pointsNeeded.toLocaleString()} pts to ${achievements.nextTier.tier.toLowerCase()}` : "Top tier reached 👑"}
+              {achievements.nextTier ? `${achievements.nextTier.pointsNeeded.toLocaleString()} pts to ${achievements.nextTier.tier.toLowerCase()}` : <span className="inline-flex items-center gap-1"><span aria-hidden="true">{TIER_EMOJI[user.tier]}</span>Top tier reached</span>}
             </p>
           )}
           {achievements && achievements.badges.length > 0 && (
             <Link href="/achievements" className="mt-2 flex flex-wrap gap-1">
               {achievements.badges.slice(0, 8).map((badge) => (
-                <span key={badge.id} title={badge.name} className="text-lg">
-                  {badge.icon}
+                <span key={badge.id} title={badge.name} className="flex size-7 items-center justify-center rounded-full bg-primary-soft text-primary">
+                  <span className="text-base leading-none" aria-hidden="true">{badge.icon}</span>
                 </span>
               ))}
             </Link>

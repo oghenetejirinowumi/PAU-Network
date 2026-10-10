@@ -163,7 +163,7 @@ bookingsRouter.post("/:bookingId/decline", requireRole("ALUMNI"), async (req, re
     type: "BOOKING_DECLINED",
     title: `${booking.alumni.firstName} couldn't take your session`,
     body: input.declineReason ?? "Try another time slot.",
-    linkUrl: `/alumni/${booking.alumniId}`,
+    linkUrl: `/profile/${booking.alumniId}`,
   });
   emitToUser(booking.studentId, "booking:updated", updated);
   res.json({ data: updated });
