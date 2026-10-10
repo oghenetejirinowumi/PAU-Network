@@ -74,8 +74,8 @@ function RegisterForm() {
 
           <div className="mb-5 grid grid-cols-2 gap-2">
             {[
-              { value: "STUDENT" as const, label: "I'm a student", icon: GraduationCap },
-              { value: "ALUMNI" as const, label: "I'm an alumnus", icon: Briefcase },
+              { value: "STUDENT" as const, label: "Student", icon: GraduationCap },
+              { value: "ALUMNI" as const, label: "Alumnus", icon: Briefcase },
             ].map(({ value, label, icon: Icon }) => (
               <button
                 key={value}

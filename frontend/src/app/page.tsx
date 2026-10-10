@@ -83,9 +83,9 @@ export default function LandingPage() {
       <section className="mx-auto grid max-w-6xl grid-cols-[repeat(auto-fit,minmax(min(100%,14rem),1fr))] gap-4 px-4 pb-16">
         {STEPS.map(({ icon: Icon, title, body }) => (
           <div key={title} className="rounded-card border border-line bg-surface p-5">
-            <Icon className="mb-3 size-6 text-primary" />
-            <p className="font-bold text-primary">{title}</p>
-            <p className="mt-1 text-sm text-muted">{body}</p>
+            <Icon className="mb-3 size-6 text-black" />
+            <p className="font-bold text-black">{title}</p>
+            <p className="mt-1 text-sm text-black">{body}</p>
           </div>
         ))}
       </section>
