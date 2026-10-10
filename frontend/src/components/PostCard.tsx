@@ -17,22 +17,24 @@ function ReactionButton({ viewerReaction, onReact }: { viewerReaction: ReactionT
   return (
     <div className="relative flex items-center" onMouseEnter={() => setIsOpen(true)} onMouseLeave={() => setIsOpen(false)}>
       {isOpen && (
-        <div role="menu" aria-label="Reactions" className="absolute -top-12 left-0 z-20 flex gap-1 rounded-full border border-line bg-surface px-2 py-1 shadow-lg">
-          {REACTIONS.map((reaction) => (
-            <button
-              key={reaction.type}
-              title={reaction.label}
-              aria-label={reaction.label}
-              role="menuitem"
-              onClick={() => {
-                onReact(reaction.type);
-                setIsOpen(false);
-              }}
-              className="tap-target text-2xl transition hover:-translate-y-1 hover:scale-125"
-            >
-              {reaction.emoji}
-            </button>
-          ))}
+        <div className="absolute bottom-full left-0 z-20 pb-2">
+          <div role="menu" aria-label="Reactions" className="flex gap-1 rounded-full border border-line bg-surface px-2 py-1 shadow-lg">
+            {REACTIONS.map((reaction) => (
+              <button
+                key={reaction.type}
+                title={reaction.label}
+                aria-label={reaction.label}
+                role="menuitem"
+                onClick={() => {
+                  onReact(reaction.type);
+                  setIsOpen(false);
+                }}
+                className="tap-target text-2xl transition hover:-translate-y-1 hover:scale-125"
+              >
+                {reaction.emoji}
+              </button>
+            ))}
+          </div>
         </div>
       )}
       <button
@@ -311,7 +313,7 @@ export function PostComposer({ onCreated }: { onCreated: (post: Post) => void })
       onCreated(data);
       setBody("");
       setImageUrl(null);
-      toast("Posted! +10 points 🎉");
+      toast("🎉 Posted! +10 points");
     } catch (caught) {
       toast(errorMessage(caught), "error");
     } finally {

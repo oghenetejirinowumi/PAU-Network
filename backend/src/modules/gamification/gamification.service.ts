@@ -81,8 +81,17 @@ async function measure(userId: string, metric: BadgeMetric): Promise<number> {
         where: { status: "ACCEPTED", OR: [{ requesterId: userId }, { recipientId: userId }] },
       });
     case "signupRank": {
-      const user = await prisma.user.findUniqueOrThrow({ where: { id: userId }, select: { createdAt: true } });
-      return (await prisma.user.count({ where: { createdAt: { lt: user.createdAt } } })) + 1;
+      const user = await prisma.user.findUniqueOrThrow({ where: { id: userId }, select: { id: true, createdAt: true } });
+      return (
+        (await prisma.user.count({
+          where: {
+            OR: [
+              { createdAt: { lt: user.createdAt } },
+              { createdAt: user.createdAt, id: { lt: user.id } },
+            ],
+          },
+        })) + 1
+      );
     }
   }
 }
@@ -106,9 +115,13 @@ export async function evaluateBadges(userId: string) {
     const isEarned = definition.metric === "signupRank" ? value <= definition.threshold : value >= definition.threshold;
     if (!isEarned) continue;
 
-    const badge = await prisma.badge.findUnique({ where: { code: definition.code } });
+    const badge = await prisma.badge.findUnique({ where: { code: definition.code }, select: { id: true, icon: true, name: true, description: true } });
     if (!badge) continue;
-    await prisma.userBadge.create({ data: { userId, badgeId: badge.id } });
+    const awarded = await prisma.userBadge.createMany({
+      data: { userId, badgeId: badge.id },
+      skipDuplicates: true,
+    });
+    if (awarded.count === 0) continue;
     await notify({
       userId,
       type: "BADGE_EARNED",

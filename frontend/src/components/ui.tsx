@@ -5,6 +5,7 @@ import { BadgeCheck, Loader2, X } from "lucide-react";
 import { useEffect, useId } from "react";
 import { fullName, initials, TIER_CLASSES, TIER_LABEL } from "@/lib/format";
 import type { Tier, UserSummary } from "@/lib/types";
+import { TIER_EMOJI } from "./AchievementEmojis";
 
 // ───── Buttons ─────
 
@@ -173,12 +174,10 @@ export function VerifiedBadge() {
 
 export function TierBadge({ tier, size = "sm" }: { tier: Tier; size?: "sm" | "md" }) {
   const classes = TIER_CLASSES[tier];
-  return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full font-semibold shadow-sm ${classes.badge} ${size === "sm" ? "px-2.5 py-0.5 text-[10px]" : "px-3 py-1 text-xs"}`}>
-      <span className="size-1.5 rounded-full bg-white/80" />
-      {TIER_LABEL[tier]}
-    </span>
-  );
+  return <span className={`inline-flex items-center gap-1.5 rounded-full font-semibold shadow-sm ${classes.badge} ${size === "sm" ? "px-2.5 py-0.5 text-[10px]" : "px-3 py-1 text-xs"}`}>
+    <span aria-hidden="true">{TIER_EMOJI[tier]}</span>
+    {TIER_LABEL[tier]}
+  </span>;
 }
 
 export function RoleBadge({ role }: { role: UserSummary["role"] }) {

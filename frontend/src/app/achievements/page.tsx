@@ -2,12 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
+import { TIER_EMOJI } from "@/components/AchievementEmojis";
 import { Avatar, Card, PageHeader, Spinner, TierBadge } from "@/components/ui";
 import { api } from "@/lib/api";
 import { ACTIVITY_LABEL, fullName, TIER_CLASSES, TIER_LABEL, timeAgo } from "@/lib/format";
 import { useSession } from "@/lib/session";
 import type { Achievements, Badge, LeaderboardRow, Tier } from "@/lib/types";
 import Link from "next/link";
+import { Flag } from "lucide-react";
+
+const LEADERBOARD_MEDALS = ["🥇", "🥈", "🥉"];
 
 const TIERS: { tier: Tier; minPoints: number }[] = [
   { tier: "BRONZE", minPoints: 0 },
@@ -80,17 +84,26 @@ export default function AchievementsPage() {
                   <p className="text-display mt-1 font-black">{TIER_LABEL[achievements.tier]}</p>
                   <p className="text-sm opacity-80">{achievements.points.toLocaleString()} lifetime points</p>
                 </div>
-                <div className="text-6xl">{{ BRONZE: "🥉", SILVER: "🥈", GOLD: "🥇", PLATINUM: "💎" }[achievements.tier]}</div>
+                <span className="text-6xl leading-none" aria-hidden="true">{TIER_EMOJI[achievements.tier]}</span>
               </div>
               <div className="mt-5 h-2.5 overflow-hidden rounded-full bg-on-primary/20">
                 <div className="h-full rounded-full bg-accent transition-all" style={{ width: `${Math.max(3, Math.min(100, progress))}%` }} />
               </div>
-              <p className="mt-2 text-xs opacity-80">{next ? `${(next.minPoints - achievements.points).toLocaleString()} points to ${TIER_LABEL[next.tier]}` : "You've reached the top tier 👑"}</p>
+              <p className="mt-2 flex items-center gap-1.5 text-xs opacity-80">
+                {next ? (
+                  <>{(next.minPoints - achievements.points).toLocaleString()} points to {TIER_LABEL[next.tier]}</>
+                ) : (
+                  <>👑 You&apos;ve reached the top tier</>
+                )}
+              </p>
             </div>
             <div className="grid grid-cols-2 divide-line min-[480px]:grid-cols-4 min-[480px]:divide-x">
               {TIERS.map((item) => (
                 <div key={item.tier} className={`p-3 text-center ${item.tier === achievements.tier ? "bg-primary-soft" : ""}`}>
-                  <p className={`text-sm font-bold ${TIER_CLASSES[item.tier].text}`}>{TIER_LABEL[item.tier]}</p>
+                  <p className={`flex items-center justify-center gap-1.5 text-sm font-bold ${TIER_CLASSES[item.tier].text}`}>
+                    <span aria-hidden="true">{TIER_EMOJI[item.tier]}</span>
+                    {TIER_LABEL[item.tier]}
+                  </p>
                   <p className="text-[11px] text-muted">{item.minPoints.toLocaleString()}+ pts</p>
                 </div>
               ))}
@@ -107,7 +120,9 @@ export default function AchievementsPage() {
                 const isEarned = earned.has(badge.code);
                 return (
                   <div key={badge.id} className={`rounded-card border p-3 text-center ${isEarned ? "border-line bg-surface" : "border-dashed border-line bg-surface-muted opacity-60 grayscale"}`}>
-                    <div className="text-3xl">{badge.icon}</div>
+                    <div className={`mx-auto flex size-11 items-center justify-center rounded-full ${isEarned ? "bg-primary-soft text-primary" : "bg-surface text-muted"}`}>
+                      <span className="text-2xl leading-none" aria-hidden="true">{badge.icon}</span>
+                    </div>
                     <p className="mt-1 text-sm font-semibold">{badge.name}</p>
                     <p className="text-[11px] text-muted">{badge.description}</p>
                     <div className="mt-2 flex justify-center">
@@ -142,7 +157,7 @@ export default function AchievementsPage() {
 
         <div className="space-y-4">
           <Card className="p-5">
-            <p className="mb-3 font-bold text-primary">🏁 Leaderboard</p>
+            <p className="mb-3 flex items-center gap-2 font-bold text-primary"><Flag className="size-4" aria-hidden="true" /> Leaderboard</p>
             <div className="mb-3 flex gap-1">
               {(["ALUMNI", "STUDENT"] as const).map((value) => (
                 <button key={value} onClick={() => setRole(value)} className={`flex-1 rounded-control py-1.5 text-xs font-semibold ${role === value ? "bg-primary text-on-primary" : "bg-surface-muted text-muted"}`}>
@@ -171,12 +186,17 @@ export default function AchievementsPage() {
               <ol className="space-y-2">
                 {leaderboard.map((row) => (
                   <li key={row.user.id} className={`flex items-center gap-3 rounded-control p-2 ${row.user.id === user.id ? "bg-primary-soft" : ""}`}>
-                    <span className="w-6 text-center text-sm font-black text-muted">{row.rank <= 3 ? ["🥇", "🥈", "🥉"][row.rank - 1] : row.rank}</span>
+                    <span className="flex w-6 justify-center text-sm font-black text-muted">
+                      {row.rank <= 3 ? <span role="img" aria-label={`Rank ${row.rank}`}>{LEADERBOARD_MEDALS[row.rank - 1]}</span> : row.rank}
+                    </span>
                     <Avatar user={row.user} size={32} />
                     <Link href={`/profile/${row.user.id}`} className="min-w-0 flex-1 truncate text-sm font-semibold hover:underline">
                       {fullName(row.user)}
                     </Link>
-                    <span className="text-sm font-bold text-primary">{row.points.toLocaleString()}</span>
+                    <span className="flex items-center gap-1 text-sm font-bold text-primary">
+                      <span aria-hidden="true">🪙</span>
+                      {row.points.toLocaleString()}
+                    </span>
                   </li>
                 ))}
               </ol>
