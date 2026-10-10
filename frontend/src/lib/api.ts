@@ -47,6 +47,8 @@ export async function request<T, M = undefined>(
     method: options.method ?? "GET",
     credentials: "include",
     headers: {
+      // Skips the localtunnel warning page when the API is exposed through a tunnel.
+      "bypass-tunnel-reminder": "true",
       ...(options.body !== undefined && { "Content-Type": "application/json" }),
       ...(token && { Authorization: `Bearer ${token}` }),
     },

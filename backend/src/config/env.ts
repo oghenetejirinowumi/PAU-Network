@@ -20,4 +20,5 @@ const envSchema = z.object({
 
 export const env = envSchema.parse(process.env);
 
-export const corsOrigins = env.CORS_ORIGINS.split(",").map((origin) => origin.trim());
+/** "*" allows any origin (useful for demos); otherwise a comma-separated allow-list. */
+export const corsOrigins: true | string[] = env.CORS_ORIGINS.trim() === "*" ? true : env.CORS_ORIGINS.split(",").map((origin) => origin.trim());
